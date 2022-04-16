@@ -6,8 +6,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const Router = require("./routes");
 
-const sequelize = require("./models").sequelize;
-sequelize.sync();
+// const sequelize = require("./models").sequelize;
+// sequelize.sync();
 
 // app.use(cors());
 // app.use(morgan("dev"));

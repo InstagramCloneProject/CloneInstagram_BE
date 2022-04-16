@@ -3,8 +3,7 @@ const userController = require("../controller/user");
 
 // router.get("/", bbbController);
 router.post("/join", userController.join);
-router.patch("/:userId/follow", userController.follow)
-router.
+router.post("/:userId/follow", userController.follow)
 // router.patch("/", bbbController);
 // router.delete("/", bbbController);
 

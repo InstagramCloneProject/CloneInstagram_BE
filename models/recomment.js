@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('comment', {
+  return sequelize.define('recomment', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
@@ -19,17 +19,17 @@ module.exports = function(sequelize, DataTypes) {
         key: 'id'
       }
     },
-    feed_Id: {
+    comment_Id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
-        model: 'feed',
+        model: 'comment',
         key: 'id'
       }
     }
   }, {
     sequelize,
-    tableName: 'comment',
+    tableName: 'recomment',
     timestamps: true,
     indexes: [
       {
@@ -48,10 +48,10 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "feed_Id",
+        name: "comment_Id",
         using: "BTREE",
         fields: [
-          { name: "feed_Id" },
+          { name: "comment_Id" },
         ]
       },
     ]

@@ -1,15 +1,23 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('comment', {
+  return sequelize.define('commentLike', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    content: {
-      type: DataTypes.STRING(500),
+    likeId: {
+      type: DataTypes.STRING(45),
       allowNull: false
+    },
+    comment_Id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'comment',
+        key: 'id'
+      }
     },
     user_Id: {
       type: DataTypes.INTEGER,
@@ -18,19 +26,11 @@ module.exports = function(sequelize, DataTypes) {
         model: 'userBasic',
         key: 'id'
       }
-    },
-    feed_Id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'feed',
-        key: 'id'
-      }
     }
   }, {
     sequelize,
-    tableName: 'comment',
-    timestamps: true,
+    tableName: 'commentLike',
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",
@@ -41,17 +41,17 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
+        name: "comment_Id",
+        using: "BTREE",
+        fields: [
+          { name: "comment_Id" },
+        ]
+      },
+      {
         name: "user_Id",
         using: "BTREE",
         fields: [
           { name: "user_Id" },
-        ]
-      },
-      {
-        name: "feed_Id",
-        using: "BTREE",
-        fields: [
-          { name: "feed_Id" },
         ]
       },
     ]

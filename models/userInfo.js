@@ -8,8 +8,8 @@ module.exports = function(sequelize, DataTypes) {
       primaryKey: true
     },
     profileImg: {
-      type: DataTypes.STRING(250),
-      allowNull: true
+      type: DataTypes.STRING(255),
+      allowNull: false
     },
     user_Id: {
       type: DataTypes.INTEGER,
