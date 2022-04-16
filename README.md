@@ -1,2 +1,4 @@
 # CloneInstagram_BE
-화이팅 Node.js!!!
+유현준 
+신동영 
+김영우
