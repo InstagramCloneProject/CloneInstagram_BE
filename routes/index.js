@@ -1,11 +1,13 @@
 const router = require("express").Router();
 
-const aaa = require("./aaa");
-const bbb = require("./bbb");
-const ccc = require("./ccc");
+const user = require("./user");
+const feed = require("./feed");
+const comment = require("./comment");
+const recomment = require("./recomment");
 
-router.use("/aaa", aaa);
-router.use("/bbb", bbb);
-router.use("/ccc", ccc);
+router.use("/user", user);
+router.use("/feed", feed);
+router.use("/comment", comment);
+router.use("/recomment", recomment);
 
 module.exports = router;

@@ -2,13 +2,14 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('userInfo', {
     id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
     profileImg: {
-      type: DataTypes.STRING(250),
-      allowNull: true
+      type: DataTypes.STRING(255),
+      allowNull: false
     },
     user_Id: {
       type: DataTypes.INTEGER,

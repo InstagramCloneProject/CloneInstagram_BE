@@ -2,6 +2,7 @@ const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
   return sequelize.define('feed', {
     id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
@@ -14,7 +15,7 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(300),
       allowNull: false
     },
-    feed_Id: {
+    user_Id: {
       type: DataTypes.INTEGER,
       allowNull: true,
       references: {
@@ -25,7 +26,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'feed',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",
@@ -36,10 +37,10 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "feed_Id",
+        name: "user_Id",
         using: "BTREE",
         fields: [
-          { name: "feed_Id" },
+          { name: "user_Id" },
         ]
       },
     ]
