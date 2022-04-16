@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-module.exports = function(sequelize, DataTypes) {
+module.exports = function (sequelize, DataTypes) {
   return sequelize.define('userBasic', {
     id: {
       autoIncrement: true,
@@ -19,6 +19,10 @@ module.exports = function(sequelize, DataTypes) {
     password: {
       type: DataTypes.STRING(200),
       allowNull: false
+    },
+    refreshToken: {
+      type: DataTypes.STRING(255),
+      allowNull: true
     }
   }, {
     sequelize,

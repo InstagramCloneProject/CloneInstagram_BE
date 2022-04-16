@@ -11,11 +11,11 @@ const Router = require("./routes");
 
 // app.use(cors());
 // app.use(morgan("dev"));
-// const removeHeader = (req, res, next) => {
-//   //x-Powerd-By 제거
-//   res.removeHeader("X-Powered-By");
-//   next();
-// };
+const removeHeader = (req, res, next) => {
+  //x-Powerd-By 제거
+  res.removeHeader("X-Powered-By");
+  next();
+};
 
 // const swaggerUi = require("swagger-ui-express");
 // const swaggerFile = require("./swagger-output");
@@ -24,7 +24,7 @@ const Router = require("./routes");
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser());
-// app.use(removeHeader);
+app.use(removeHeader);
 app.use("/api", Router);
 
 app.get("/", (req, res) => {
