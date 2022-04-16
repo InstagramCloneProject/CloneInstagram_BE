@@ -1,14 +1,14 @@
-const { comment } = require('../models/index')
+const { comment } = require("../models/index");
 
 async function applyComment(req, res) {
-	const { content } = req.body
-	const { user_Id, feed_Id } = req.body
+  const { content } = req.body;
+  const { user_Id, feed_Id } = req.body;
 
-	await comment.create({ content, user_Id, feed_Id })
+  await comment.create({ content, user_Id, feed_Id });
 
-	res.json({ success: true })
+  res.json({ success: true });
 }
 
 module.exports = {
-	applyComment
-}
+  applyComment,
+};

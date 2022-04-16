@@ -1,7 +1,7 @@
 {
   "development": {
-    "username": "dongyoung",
-    "password": "dongyoungsql1234!",
+    "username": "youngwoo",
+    "password": "youngwoosql1234!",
     "database": "instagram",
     "host": "13.125.106.153",
     "dialect": "mysql"

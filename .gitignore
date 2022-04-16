@@ -184,4 +184,5 @@ dist
 
 .svelte-kit
 
+feedImg/
 # End of https://www.toptal.com/developers/gitignore/api/node
