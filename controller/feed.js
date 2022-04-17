@@ -1,18 +1,28 @@
-const { feed, userBasic, feedLike } = require("../models/index");
+const { feed, userBasic, feedLike } = require("../models");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const aws = require("aws-sdk");
-aws.config.loadFromPath(__dirname + "/../config/s3.json");
+aws.config.loadFromPath(__dirname + "/../config/s3.json"); //aws키 불러오기
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
-async function showFeed(req, res) {}
+async function showFeed(req, res) {
+  const Feed = await feed.findAll({
+    include: [
+      {
+        model: userBasic,
+        as: "user",
+        attributes: ["nickname"],
+      },
+    ],
+  });
+  res.status(200).json({ Feed });
+}
 
 //multer
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
-    // 저장한공간 정보 : 하드디스크에 저장
     s3: s3,
     bucket: "cloneproject-instagram",
     acl: "public-read",
@@ -23,7 +33,7 @@ const upload = multer({
       cb(null, randomName + ext);
     },
   }),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 10mb로 용량 제한
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10mb로 용량 제한
 });
 
 async function applyFeed(req, res) {
