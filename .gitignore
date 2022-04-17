@@ -1,4 +1,6 @@
 config
+orm.js
+
 # Created by https://www.toptal.com/developers/gitignore/api/node
 
 # Edit at https://www.toptal.com/developers/gitignore?templates=node
@@ -56,7 +58,6 @@ bower_components
 build/Release
 
 # Dependency directories
-
 node_modules/
 jspm_packages/
 
