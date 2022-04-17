@@ -1,45 +1,40 @@
 const { feed, userBasic, feedLike } = require("../models/index");
 const multer = require("multer");
+const multerS3 = require("multer-s3");
+const aws = require("aws-sdk");
+aws.config.loadFromPath(__dirname + "/../config/s3.json");
 const path = require("path");
-const fs = require("fs");
 const { v4: uuidv4 } = require("uuid");
 
 async function showFeed(req, res) {}
 
 //multer
-try {
-  fs.readdirSync("feedImg"); // 폴더 확인
-} catch (err) {
-  console.error("feedImg 폴더가 없습니다. 폴더를 생성합니다.");
-  fs.mkdirSync("feedImg"); // 폴더 생성
-}
-
+const s3 = new aws.S3();
 const upload = multer({
-  storage: multer.diskStorage({
+  storage: multerS3({
     // 저장한공간 정보 : 하드디스크에 저장
-    destination(req, file, done) {
-      // 저장 위치
-      done(null, "feedImg/"); // feedImg라는 폴더 안에 저장
-    },
-    filename(req, file, done) {
-      // 파일명을 어떤 이름으로 올릴지
+    s3: s3,
+    bucket: "cloneproject-instagram",
+    acl: "public-read",
+    key: function (req, file, cb) {
+      //파일이름 설정
       let ext = path.extname(file.originalname); // 파일의 확장자
       let randomName = uuidv4(file.originalname); //파일이름을 랜덤하게 부여
-      done(null, path.basename(randomName, ext) + ext); // 파일이름 + 확장자 이름으로 저장
+      cb(null, randomName + ext);
     },
   }),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10mb로 용량 제한
+  limits: { fileSize: 5 * 1024 * 1024 }, // 10mb로 용량 제한
 });
 
 async function applyFeed(req, res) {
   const { content } = req.body;
   //로컬로 변경해야함
   const { user_Id } = req.body;
-
+  console.log(req.file.location);
   if (!req.file) return res.status(400).json({ message: "이미지를 넣어주세요" }); //이미지 없을때
 
   try {
-    await feed.create({ content, user_Id, feedImg: `feedImg/${req.file.filename}` }); //피드 생성
+    await feed.create({ content, user_Id, feedImg: req.file.location }); //피드 생성
     res.status(200).json({ success: true });
   } catch (err) {
     res.status(400).json({ success: false });
