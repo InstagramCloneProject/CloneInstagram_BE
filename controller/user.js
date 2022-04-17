@@ -1,10 +1,20 @@
-const { userBasic, userFollow, feed } = require('../models/index')
+const { userBasic, userFollow, userInfo } = require('../models/index')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const { exist } = require('joi')
+
+// about multer and s3
+const multer = require('multer')
+const multerS3 = require('multer-s3')
+const path = require('path')
+const { v4: uuidv4 } = require('uuid')
+const aws = require('aws-sdk')
+aws.config.loadFromPath(__dirname + '/../config/s3.json')
+
 require('dotenv').config()
 const saltRounds = process.env.SALT
 
+// About register and login
 async function join(req, res) {
 	const { userId } = req.body
 	const { nickName, password } = req.body
@@ -44,20 +54,13 @@ async function login(req, res) {
 	res.status(200).json({ success: true, accessToken, refreshToken })
 }
 
-//  TODO: multer 적용하기
-// async function addprofileImg(req, res) {
-// 	const { user_Id } = req.params
-// 	const { profileImg } = req.body
 
-// }
+// About follow
 // TODO: FollowId가 db 정보에 있는 것인지 검토해야하나?
 async function follow(req, res) {
 	const user_Id = req.params.user_Id // 팔로우 버튼 클릭한 유저
 	const { followId } = req.body // 유저가 팔로우한 ID
 	await userFollow.create({ user_Id, followId })
-	const fileImg = await feed.findOne({ where: { id: 10 } }).then((value) => { return value.feedImg })
-	var filename = '/uploads' + fileImg + '.jpg'
-	console.log(fileImg)
 	res.json({ success: true })
 }
 
@@ -70,9 +73,57 @@ async function unfollow(req, res) {
 	res.json({ success: true })
 }
 
+// About profileImg 
+
+// multer set: request로 들어온 파일을 저장할 위치, 파일의 규격 지정.
+const s3 = new aws.S3();
+const upload = multer({
+	storage: multerS3({
+		// 저장한공간 정보 : 하드디스크에 저장
+		s3: s3,
+		bucket: "cloneproject-instagram",
+		acl: "public-read",
+		key: function (req, file, cb) {
+			//파일이름 설정
+			let ext = path.extname(file.originalname); // 파일의 확장자
+			let randomName = uuidv4(file.originalname); //파일이름을 랜덤하게 부여
+			cb(null, randomName + ext);
+		},
+	}),
+	limits: { fileSize: 5 * 1024 * 1024 }, // 10mb로 용량 제한
+});
+
+
+async function applyProfileImg(req, res) {
+	const { user_Id } = req.params
+	if (!req.file) return res.status(400).json({ errormsg: '이미지를 넣어주세요.' })
+	console.log(req.file)
+	console.log(req.file.location)
+	const profileImg = req.file.location
+	await userInfo.create({ user_Id, profileImg })
+	res.status(200).json({ success: true })
+}
+
+async function updateProfileImg(req, res) {
+	const { user_Id } = req.params
+	const updateProfileImg = req.file.location
+	await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
+	res.status(200).json({ success: true })
+}
+
+async function deleteProfileImg(req, res) {
+	const { user_Id } = req.params
+	await userInfo.destroy({ where: { user_Id } })
+	res.status(200).json({ success: true })
+}
+
 module.exports = {
 	join,
 	follow,
 	login,
-	unfollow
+	unfollow,
+	upload,
+	applyProfileImg,
+	updateProfileImg,
+	deleteProfileImg
 }
