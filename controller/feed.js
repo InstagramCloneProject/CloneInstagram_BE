@@ -15,9 +15,7 @@ async function showFeed(req, res) {
     where:
       { user_Id: Id }
   })
-    .then((value) 
-          
-          > { return value })
+    .then((value) => { return value })
   const userId = followUsersArray.map((value) => { return value.dataValues.followId })
   console.log(userId)
   const userIdArray = await userBasic.findAll({
@@ -93,7 +91,7 @@ async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
 
   const Feed = await feed.findAll({
-    where : { id: feed_Id },
+    where: { id: feed_Id },
     include: [{
       model: userBasic,
       as: 'user',
@@ -105,10 +103,10 @@ async function showDetailFeed(req, res) {
       include: [{
         model: commentLike,
         as: 'commentLikes'
-      },{
+      }, {
         model: recomment,
         as: 'recomments',
-        include:[{
+        include: [{
           model: recommentLike,
           as: 'recommentLikes'
         }]
