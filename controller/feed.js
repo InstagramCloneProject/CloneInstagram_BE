@@ -5,61 +5,74 @@ const aws = require("aws-sdk");
 aws.config.loadFromPath(__dirname + "/../config/s3.json"); //aws키 불러오기
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const { Op } = require('sequelize');
-const { isTypedArray } = require("util/types");
-async function showFeed(req, res) {
-  const Id = 4
-  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => { return value })
+const { Op } = require("sequelize");
 
-  const userId = followUsersArray.map((value) => { return value.dataValues.followId })
-  console.log(userId)
-  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } })
-  const user_Id = userIdArray.map((value) => { return value.dataValues.id })
-  console.log(user_Id)
-  const feedOrigin = await userBasic.findAll({
-    attributes: ['nickName'],
-    where: { id: { [Op.or]: user_Id } },
-    include: [{
-      model: feed,
-      as: 'feeds',
-      where: { user_Id: { [Op.or]: user_Id } },
-      order: [["createdAt", "desc"]],
-      limit: 3,
-      include: [{
-        model: feedLike,
-        as: 'feedLikes',
-        attributes: ['likeId']
-      },
-      {
-        model: comment,
-        as: 'comments'
-      }]
-    }]
-  }).then((value) => { return value })
-  let feedList = []
-  const Feed = feedOrigin.map((value) => { return value.dataValues })
-  console.log(feedLike)
+async function showFeed(req, res) {
+  const Id = 4;
+  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => {
+    return value;
+  });
+
+  const userId = followUsersArray.map((value) => {
+    return value.dataValues.followId;
+  });
+  console.log(userId);
+  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } });
+  const user_Id = userIdArray.map((value) => {
+    return value.dataValues.id;
+  });
+  console.log(user_Id);
+  const feedOrigin = await userBasic
+    .findAll({
+      attributes: ["nickName"],
+      where: { id: { [Op.or]: user_Id } },
+      include: [
+        {
+          model: feed,
+          as: "feeds",
+          where: { user_Id: { [Op.or]: user_Id } },
+          order: [["createdAt", "desc"]],
+          limit: 3,
+          include: [
+            {
+              model: feedLike,
+              as: "feedLikes",
+              attributes: ["likeId"],
+            },
+            {
+              model: comment,
+              as: "comments",
+            },
+          ],
+        },
+      ],
+    })
+    .then((value) => {
+      return value;
+    });
+  let feedList = [];
+  const Feed = feedOrigin.map((value) => {
+    return value.dataValues;
+  });
+  console.log(feedLike);
   for (let i = 0; i < Feed.length; i++) {
-    let realFeed = Feed[i].feeds
-    let userNick = Feed[i].nickName
+    let realFeed = Feed[i].feeds;
+    let userNick = Feed[i].nickName;
     for (let z = 0; z < realFeed.length; z++) {
-      let oneFeed = realFeed[z]
-      oneFeed.dataValues.nickName = userNick
-      feedList.push(oneFeed)
+      let oneFeed = realFeed[z];
+      oneFeed.dataValues.nickName = userNick;
+      feedList.push(oneFeed);
     }
   }
-  feedList.sort((a, b) => b.createdAt - a.createdAt)
+  feedList.sort((a, b) => b.createdAt - a.createdAt);
   res.status(200).json({ feedList });
 }
 
-
-
-multer;
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: "cloneproject-instagram",
+    bucket: "cloneproject-instagram/feedImage",
     acl: "public-read",
     key: function (req, file, cb) {
       //파일이름 설정
