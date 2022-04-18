@@ -7,7 +7,7 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
 async function showFeed(req, res) {
-  let id = 2;
+  let id = 1;
   // const follows = await userFollow.findAll({ where: { user_Id: id } });
   // const followId = follows.map((follow) => follow.followId);
 
@@ -28,32 +28,35 @@ async function showFeed(req, res) {
   //     },
   //   ],
   // });
-  const Feed = await feed.findAll({
-    include: [
-      {
-        model: userBasic,
-        as: "user",
-        attributes: ["nickName", "userId"],
-        include: [
-          {
-            model: userFollow,
-            as: "userFollows",
-          },
-        ],
-      },
-      {
-        model: feedLike,
-        as: "feedLikes",
-        attributes: ["likeId"],
-      },
-      {
-        model: comment,
-        as: "comments",
-      },
-    ],
-  });
+  // const Feed = await feed.findAll({
+  //   include: [
+  //     {
+  //       model: userBasic,
+  //       as: "user",
+  //       attributes: ["nickName", "userId"],
+  //       include: [
+  //         {
+  //           model: userFollow,
+  //           as: "userFollows",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       model: feedLike,
+  //       as: "feedLikes",
+  //       attributes: ["likeId"],
+  //     },
+  //     {
+  //       model: comment,
+  //       as: "comments",
+  //     },
+  //   ],
+  // });
+  const following = await userFollow.findAll({where : { user_Id : id }, include: [ {model: feed} ]})
+  console.log(following[0])
+  // const followingId = await userBasic.findAll({where : { userId : following.followId }})
 
-  res.status(200).json({ Feed });
+  res.status(200).json({ following });
 }
 // feed: Feed.map((feeds) => {
 //   return {

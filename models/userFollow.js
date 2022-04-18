@@ -9,8 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     },
     followId: {
       type: DataTypes.STRING(45),
-      allowNull: false,
-      unique: "followId_UNIQUE"
+      allowNull: false
     },
     user_Id: {
       type: DataTypes.INTEGER,
@@ -31,14 +30,6 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "id" },
-        ]
-      },
-      {
-        name: "followId_UNIQUE",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "followId" },
         ]
       },
       {
