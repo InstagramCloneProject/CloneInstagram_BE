@@ -1,22 +1,28 @@
-const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo } = require("../models")
+const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo, recommentLike } = require("../models")
 const multer = require("multer")
 const multerS3 = require("multer-s3")
 const aws = require("aws-sdk")
 aws.config.loadFromPath(__dirname + "/../config/s3.json") //aws키 불러오기
 const path = require("path")
 const { v4: uuidv4 } = require("uuid")
-const { Op, Sequelize } = require("sequelize")
+const { Op } = require("sequelize")
 
 async function showFeed(req, res) {
   const Id = 4
-  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => {
-    return value
-  })
+  const followUsersArray = await userFollow
+    .findAll({
+      where: { user_Id: Id },
+    })
+    .then((value) => {
+      return value
+    })
   const userId = followUsersArray.map((value) => {
     return value.dataValues.followId
   })
   console.log(userId)
-  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } })
+  const userIdArray = await userBasic.findAll({
+    where: { userId: { [Op.or]: userId } },
+  })
   const user_Id = userIdArray.map((value) => {
     return value.dataValues.id
   })
@@ -41,6 +47,14 @@ async function showFeed(req, res) {
             {
               model: comment,
               as: "comments",
+              include: [
+                {
+                  model: userBasic,
+                  as: "user",
+                  attributes: ["nickname"],
+                  order: [["createdAt", "desc"]],
+                },
+              ],
             },
           ],
         },
@@ -53,7 +67,6 @@ async function showFeed(req, res) {
   const Feed = feedOrigin.map((value) => {
     return value.dataValues
   })
-  console.log(feedLike)
   for (let i = 0; i < Feed.length; i++) {
     let realFeed = Feed[i].feeds
     let userNick = Feed[i].nickName
@@ -63,7 +76,6 @@ async function showFeed(req, res) {
       feedList.push(oneFeed)
     }
   }
-
   feedList.sort((a, b) => b.createdAt - a.createdAt)
   res.status(200).json({ feedList })
   const followUserListOrigin = await userBasic.findAll({
@@ -128,45 +140,6 @@ async function showDetailFeed(req, res) {
   })
 
   res.status(200).json({ Feed })
-}
-
-async function showMyPage(req, res) {
-  const { user_Id } = req.params //유저 받기
-  const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //나를 팔로우 하는 아이디
-  follower.map((id) => console.log(id.id))
-  const mypage = await userBasic.findAll({
-    where: {
-      id: user_Id,
-    },
-    attributes: ["userId", "nickName"],
-    include: [
-      {
-        model: userFollow,
-        as: "userFollows",
-        attributes: ["followId"], //내가 팔로우 하는 아이디 {
-      },
-      { model: userInfo, as: "userInfos", attributes: ["profileImg"] },
-      {
-        model: feed,
-        as: "feeds",
-        attributes: ["feedImg"],
-      },
-    ],
-  })
-  res.json({
-    result: mypage.map((value) => {
-      return {
-        userId: value.userId,
-        nickname: value.nickName,
-        profileImg: value.userInfos[0].profileImg,
-        feedCount: value.feeds.length,
-        feedImg: value.feeds,
-        follower: follower.length,
-        following: value.userFollows.length,
-      }
-    }),
-  })
 }
 
 const s3 = new aws.S3()
@@ -261,7 +234,6 @@ async function unlikeFeed(req, res) {
 
 module.exports = {
   showFeed,
-  showMyPage,
   applyFeed,
   updateFeed,
   deletFeed,
