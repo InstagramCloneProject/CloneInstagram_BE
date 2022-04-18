@@ -5,11 +5,10 @@ const aws = require("aws-sdk");
 aws.config.loadFromPath(__dirname + "/../config/s3.json"); //aws키 불러오기
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
+const { Op } = require("sequelize");
 
 async function showFeed(req, res) {
-  let id = 2;
-  // const follows = await userFollow.findAll({ where: { user_Id: id } });
-  // const followId = follows.map((follow) => follow.followId);
+  let id = 1;
 
   // followId.map(async (a) => {
   //   const user = await userBasic.findOne({ where: { userId: a } });
@@ -18,59 +17,85 @@ async function showFeed(req, res) {
 
   // console.log(user);
   // const follow_Id = follows.map((follow) => follow.followId);
-  // const UserFeed = await userBasic.findAll({
-  //   where: { id },
-  //   include: [
-  //     {
-  //       model: userFollow,
-  //       as: "userFollows",
-  //       attributes: ["followId"],
-  //     },
-  //   ],
-  // });
-  const Feed = await feed.findAll({
+
+  const follows = await userFollow.findAll({ where: { user_Id: id } }); //
+  const followId = follows.map((follow) => follow.followId);
+
+  const findUser = await userBasic.findAll({
+    where: {
+      userId: {
+        [Op.or]: followId,
+      },
+    },
+  });
+
+  const findUserId = findUser.map((userId) => userId.id);
+
+  const UserFeed = await userBasic.findAll({
+    attributes: ["userId", "nickName"],
+    where: {
+      id: {
+        [Op.or]: findUserId,
+      },
+    },
     include: [
       {
-        model: userBasic,
-        as: "user",
-        attributes: ["nickName", "userId"],
+        model: userInfo, // 팔로우한 사용자 정보
+        as: "userInfos",
+        attributes: ["profileImg"],
+      },
+      {
+        model: feed, //팔로우한 사용자 피드내용
+        as: "feeds",
         include: [
           {
-            model: userFollow,
-            as: "userFollows",
+            model: feedLike, //해당 피드의 좋아요 정보
+            as: "feedLikes",
+          },
+          {
+            model: comment, //해당 피드의 댓글 정보
+            as: "comments",
+            include: {
+              model: userBasic, //해당 댓글의 유저 정보
+              as: "user",
+            },
           },
         ],
-      },
-      {
-        model: feedLike,
-        as: "feedLikes",
-        attributes: ["likeId"],
-      },
-      {
-        model: comment,
-        as: "comments",
+        order: [["created_at", "desc"]],
       },
     ],
   });
-
-  res.status(200).json({ Feed });
+  // UserFeed.map((feeds) => {
+  //   console.log(feeds.nickName);
+  //   console.log(feeds.userInfos[0].profileImg);
+  //   feeds.feeds.find((feedData) => {
+  //     console.log(feedData.feedImg);
+  //     console.log(feedData.content);
+  //   });
+  // console.log(feeds.feeds.feedImg);
+  // console.log(feeds.feeds.content);
+  // console.log(feeds.user.nickName);
+  // console.log(feeds.feedLikes.length);
+  // console.log(feeds.comments);
+  //}),
+  res.status(200).json({ UserFeed });
+  // feed: UserFeed.map((feeds) => {
+  //   return {
+  //
+  //     feedImg: feeds.feed.feedImg,
+  //     content: feeds.feeds.content,
+  //     nickname: feeds.user.nickName,
+  //     feedLikeCount: feeds.feedLikes.length,
+  //     comment: feeds.comments,
+  //   };
+  // }),
 }
-// feed: Feed.map((feeds) => {
-//   return {
-//     feedImg: feeds.feedImg,
-//     content: feeds.content,
-//     nickname: feeds.user.nickName,
-//     feedLikeCount: feeds.feedLikes.length,
-//     comment: feeds.comments,
-//   };
-// }),
 
-multer;
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
     s3: s3,
-    bucket: "cloneproject-instagram",
+    bucket: "cloneproject-instagram/feedImage",
     acl: "public-read",
     key: function (req, file, cb) {
       //파일이름 설정
