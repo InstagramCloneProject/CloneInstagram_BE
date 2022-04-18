@@ -1,4 +1,4 @@
-const { userBasic, userFollow, userInfo } = require('../models/index')
+const { userBasic, userFollow, userInfo, feed } = require('../models/index')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const { exist } = require('joi')
@@ -93,6 +93,45 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 }, // 10mb로 용량 제한
 });
 
+async function showMyPage(req, res) {
+	const { user_Id } = req.params; //유저 받기
+	const follow = await userBasic.findOne({ where: { id: user_Id } }); // 유저정보 찾기
+	const follower = await userFollow.findAll({ where: { followId: follow.userId } }); //나를 팔로우 하는 아이디
+	follower.map((id) => console.log(id.id));
+	const mypage = await userBasic.findAll({
+		where: {
+			id: user_Id,
+		},
+		attributes: ["userId", "nickName"],
+		include: [
+			{
+				model: userFollow,
+				as: "userFollows",
+				attributes: ["followId"], //내가 팔로우 하는 아이디 {
+			},
+			{ model: userInfo, as: "userInfos", attributes: ["profileImg"] },
+			{
+				model: feed,
+				as: "feeds",
+				attributes: ["feedImg"],
+			},
+		],
+	});
+	res.json({
+		result: mypage.map((value) => {
+			return {
+				userId: value.userId,
+				nickname: value.nickName,
+				profileImg: value.userInfos[0].profileImg,
+				feedCount: value.feeds.length,
+				feedImg: value.feeds,
+				follower: follower.length,
+				following: value.userFollows.length,
+			};
+		}),
+	});
+}
+
 
 async function applyProfileImg(req, res) {
 	const { user_Id } = req.params
@@ -123,6 +162,7 @@ module.exports = {
 	login,
 	unfollow,
 	upload,
+	showMyPage,
 	applyProfileImg,
 	updateProfileImg,
 	deleteProfileImg

@@ -121,45 +121,6 @@ async function showDetailFeed(req, res) {
   res.status(200).json({ Feed });
 }
 
-async function showMyPage(req, res) {
-  const { user_Id } = req.params; //유저 받기
-  const follow = await userBasic.findOne({ where: { id: user_Id } }); // 유저정보 찾기
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } }); //나를 팔로우 하는 아이디
-  follower.map((id) => console.log(id.id));
-  const mypage = await userBasic.findAll({
-    where: {
-      id: user_Id,
-    },
-    attributes: ["userId", "nickName"],
-    include: [
-      {
-        model: userFollow,
-        as: "userFollows",
-        attributes: ["followId"], //내가 팔로우 하는 아이디 {
-      },
-      { model: userInfo, as: "userInfos", attributes: ["profileImg"] },
-      {
-        model: feed,
-        as: "feeds",
-        attributes: ["feedImg"],
-      },
-    ],
-  });
-  res.json({
-    result: mypage.map((value) => {
-      return {
-        userId: value.userId,
-        nickname: value.nickName,
-        profileImg: value.userInfos[0].profileImg,
-        feedCount: value.feeds.length,
-        feedImg: value.feeds,
-        follower: follower.length,
-        following: value.userFollows.length,
-      };
-    }),
-  });
-}
-
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
@@ -252,7 +213,6 @@ async function unlikeFeed(req, res) {
 
 module.exports = {
   showFeed,
-  showMyPage,
   applyFeed,
   updateFeed,
   deletFeed,
