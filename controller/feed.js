@@ -1,59 +1,59 @@
-const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo } = require("../models");
+const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo, recommentLike } = require("../models");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const aws = require("aws-sdk");
 aws.config.loadFromPath(__dirname + "/../config/s3.json"); //aws키 불러오기
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-const { Op, Sequelize } = require("sequelize");
+
+const { Op } = require('sequelize');
+const { isTypedArray } = require("util/types");
 
 async function showFeed(req, res) {
-  const Id = 4;
-  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => {
-    return value;
-  });
-  const userId = followUsersArray.map((value) => {
-    return value.dataValues.followId;
-  });
-  console.log(userId);
-  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } });
-  const user_Id = userIdArray.map((value) => {
-    return value.dataValues.id;
-  });
-  console.log(user_Id);
-  const feedOrigin = await userBasic
-    .findAll({
-      attributes: ["nickName"],
-      where: { id: { [Op.or]: user_Id } },
-      include: [
-        {
-          model: feed,
-          as: "feeds",
-          where: { user_Id: { [Op.or]: user_Id } },
-          order: [["createdAt", "desc"]],
-          limit: 3,
-          include: [
-            {
-              model: feedLike,
-              as: "feedLikes",
-              attributes: ["likeId"],
-            },
-            {
-              model: comment,
-              as: "comments",
-            },
-          ],
-        },
-      ],
-    })
-    .then((value) => {
-      return value;
-    });
-  let feedList = [];
-  const Feed = feedOrigin.map((value) => {
-    return value.dataValues;
-  });
-  console.log(feedLike);
+  const Id = 4
+  const followUsersArray = await userFollow.findAll({
+    where:
+      { user_Id: Id }
+  })
+    .then((value) 
+          
+          > { return value })
+  const userId = followUsersArray.map((value) => { return value.dataValues.followId })
+  console.log(userId)
+  const userIdArray = await userBasic.findAll({
+    where:
+      { userId: { [Op.or]: userId } }
+  })
+  const user_Id = userIdArray.map((value) => { return value.dataValues.id })
+  console.log(user_Id)
+  const feedOrigin = await userBasic.findAll({
+    attributes: ['nickName'],
+    where: { id: { [Op.or]: user_Id } },
+    include: [{
+      model: feed,
+      as: 'feeds',
+      where: { user_Id: { [Op.or]: user_Id } },
+      order: [["createdAt", "desc"]],
+      limit: 3,
+      include: [{
+        model: feedLike,
+        as: 'feedLikes',
+        attributes: ['likeId']
+      },
+      {
+        model: comment,
+        as: 'comments',
+        include: [{
+          model: userBasic,
+          as: 'user',
+          attributes: ['nickname'],
+          order: [['createdAt', 'desc']]
+        }],
+      }]
+    }]
+  }).then((value) => { return value })
+  let feedList = []
+  const Feed = feedOrigin.map((value) => { return value.dataValues })
   for (let i = 0; i < Feed.length; i++) {
     let realFeed = Feed[i].feeds;
     let userNick = Feed[i].nickName;
@@ -65,6 +65,62 @@ async function showFeed(req, res) {
   }
   feedList.sort((a, b) => b.createdAt - a.createdAt);
   res.status(200).json({ feedList });
+  const followUserListOrigin = await userBasic.findAll(
+    {
+      attributes: ['userId', 'nickName'],
+      where: { userId: { [Op.or]: userId } }
+    })
+  const followUserList = followUserListOrigin.map((value) => {
+    return value.dataValues.nickName
+  })
+  // 팔로우 안한 유저 중에 랜덤하게 5명 데이터 보내기(1안)
+  const userListOrigin = await userBasic.findAll({
+    attributes: ['userId', 'nickName']
+  })
+  const userList = userListOrigin.map((value) => {
+    return value.dataValues.nickName
+  })
+  for (let i = 0; i < followUserList.length; i++) {
+    if (userList.includes(followUserList[i])) {
+      userList.splice(userList.indexOf(followUserList[i]), 1)
+    }
+  }
+  feedList.sort((a, b) => b.createdAt - a.createdAt)
+  res.status(200).json({ feedList, userList });
+}
+
+async function showDetailFeed(req, res) {
+  const { feed_Id } = req.params
+
+  const Feed = await feed.findAll({
+    where : { id: feed_Id },
+    include: [{
+      model: userBasic,
+      as: 'user',
+      attributes: ['userId', 'nickName']
+    },
+    {
+      model: comment,
+      as: 'comments',
+      include: [{
+        model: commentLike,
+        as: 'commentLikes'
+      },{
+        model: recomment,
+        as: 'recomments',
+        include:[{
+          model: recommentLike,
+          as: 'recommentLikes'
+        }]
+      }]
+    },
+    {
+      model: feedLike,
+      as: 'feedLikes'
+    }]
+  })
+
+  res.status(200).json({ Feed });
 }
 
 async function showMyPage(req, res) {
@@ -205,4 +261,5 @@ module.exports = {
   likeFeed,
   unlikeFeed,
   upload,
+  showDetailFeed
 };
