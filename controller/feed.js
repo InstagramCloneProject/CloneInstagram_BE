@@ -10,15 +10,8 @@ const { Op } = require("sequelize");
 async function showFeed(req, res) {
   let id = 1;
 
-  // followId.map(async (a) => {
-  //   const user = await userBasic.findOne({ where: { userId: a } });
-  //   console.log(user);
-  // });
+  const follows = await userFollow.findAll({ where: { user_Id: id } });
 
-  // console.log(user);
-  // const follow_Id = follows.map((follow) => follow.followId);
-
-  const follows = await userFollow.findAll({ where: { user_Id: id } }); //
   const followId = follows.map((follow) => follow.followId);
 
   const findUser = await userBasic.findAll({
@@ -46,6 +39,8 @@ async function showFeed(req, res) {
       },
       {
         model: feed, //팔로우한 사용자 피드내용
+        order: [["createdAt", "DESC"]],
+        limit: 3,
         as: "feeds",
         include: [
           {
@@ -61,10 +56,10 @@ async function showFeed(req, res) {
             },
           },
         ],
-        order: [["created_at", "desc"]],
       },
     ],
   });
+
   // UserFeed.map((feeds) => {
   //   console.log(feeds.nickName);
   //   console.log(feeds.userInfos[0].profileImg);
