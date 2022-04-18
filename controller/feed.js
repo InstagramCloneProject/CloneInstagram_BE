@@ -5,65 +5,54 @@ const aws = require("aws-sdk");
 aws.config.loadFromPath(__dirname + "/../config/s3.json"); //aws키 불러오기
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
-
+const { Op } = require('sequelize');
+const { isTypedArray } = require("util/types");
 async function showFeed(req, res) {
-  let id = 2;
-  // const follows = await userFollow.findAll({ where: { user_Id: id } });
-  // const followId = follows.map((follow) => follow.followId);
+  const Id = 4
+  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => { return value })
 
-  // followId.map(async (a) => {
-  //   const user = await userBasic.findOne({ where: { userId: a } });
-  //   console.log(user);
-  // });
-
-  // console.log(user);
-  // const follow_Id = follows.map((follow) => follow.followId);
-  // const UserFeed = await userBasic.findAll({
-  //   where: { id },
-  //   include: [
-  //     {
-  //       model: userFollow,
-  //       as: "userFollows",
-  //       attributes: ["followId"],
-  //     },
-  //   ],
-  // });
-  const Feed = await feed.findAll({
-    include: [
-      {
-        model: userBasic,
-        as: "user",
-        attributes: ["nickName", "userId"],
-        include: [
-          {
-            model: userFollow,
-            as: "userFollows",
-          },
-        ],
-      },
-      {
+  const userId = followUsersArray.map((value) => { return value.dataValues.followId })
+  console.log(userId)
+  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } })
+  const user_Id = userIdArray.map((value) => { return value.dataValues.id })
+  console.log(user_Id)
+  const feedOrigin = await userBasic.findAll({
+    attributes: ['nickName'],
+    where: { id: { [Op.or]: user_Id } },
+    include: [{
+      model: feed,
+      as: 'feeds',
+      where: { user_Id: { [Op.or]: user_Id } },
+      order: [["createdAt", "desc"]],
+      limit: 3,
+      include: [{
         model: feedLike,
-        as: "feedLikes",
-        attributes: ["likeId"],
+        as: 'feedLikes',
+        attributes: ['likeId']
       },
       {
         model: comment,
-        as: "comments",
-      },
-    ],
-  });
-
-  res.status(200).json({ Feed });
+        as: 'comments'
+      }]
+    }]
+  }).then((value) => { return value })
+  let feedList = []
+  const Feed = feedOrigin.map((value) => { return value.dataValues })
+  console.log(feedLike)
+  for (let i = 0; i < Feed.length; i++) {
+    let realFeed = Feed[i].feeds
+    let userNick = Feed[i].nickName
+    for (let z = 0; z < realFeed.length; z++) {
+      let oneFeed = realFeed[z]
+      oneFeed.dataValues.nickName = userNick
+      feedList.push(oneFeed)
+    }
+  }
+  feedList.sort((a, b) => b.createdAt - a.createdAt)
+  res.status(200).json({ feedList });
 }
-// feed: Feed.map((feeds) => {
-//   return {
-//     feedImg: feeds.feedImg,
-//     content: feeds.content,
-//     nickname: feeds.user.nickName,
-//     feedLikeCount: feeds.feedLikes.length,
-//     comment: feeds.comments,
-//   };
-// }),
+
+
 
 multer;
 const s3 = new aws.S3();
@@ -86,9 +75,8 @@ async function applyFeed(req, res) {
   const { content } = req.body;
   //로컬로 변경해야함
   const { user_Id } = req.body;
-  console.log(req.file.location);
   if (!req.file) return res.status(400).json({ message: "이미지를 넣어주세요" }); //이미지 없을때
-
+  console.log(req.file.location);
   try {
     await feed.create({ content, user_Id, feedImg: req.file.location }); //피드 생성
     res.status(200).json({ success: true });

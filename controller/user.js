@@ -81,7 +81,7 @@ const upload = multer({
 	storage: multerS3({
 		// 저장한공간 정보 : 하드디스크에 저장
 		s3: s3,
-		bucket: "cloneproject-instagram",
+		bucket: "cloneproject-instagram/profileImg",
 		acl: "public-read",
 		key: function (req, file, cb) {
 			//파일이름 설정
