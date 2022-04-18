@@ -10,11 +10,17 @@ const { isTypedArray } = require("util/types");
 
 async function showFeed(req, res) {
   const Id = 4
-  const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => { return value })
-
+  const followUsersArray = await userFollow.findAll({
+    where:
+      { user_Id: Id }
+  })
+    .then((value) => { return value })
   const userId = followUsersArray.map((value) => { return value.dataValues.followId })
   console.log(userId)
-  const userIdArray = await userBasic.findAll({ where: { userId: { [Op.or]: userId } } })
+  const userIdArray = await userBasic.findAll({
+    where:
+      { userId: { [Op.or]: userId } }
+  })
   const user_Id = userIdArray.map((value) => { return value.dataValues.id })
   console.log(user_Id)
   const feedOrigin = await userBasic.findAll({
@@ -33,13 +39,18 @@ async function showFeed(req, res) {
       },
       {
         model: comment,
-        as: 'comments'
+        as: 'comments',
+        include: [{
+          model: userBasic,
+          as: 'user',
+          attributes: ['nickname'],
+          order: [['createdAt', 'desc']]
+        }],
       }]
     }]
   }).then((value) => { return value })
   let feedList = []
   const Feed = feedOrigin.map((value) => { return value.dataValues })
-  
   for (let i = 0; i < Feed.length; i++) {
     let realFeed = Feed[i].feeds
     let userNick = Feed[i].nickName
@@ -49,8 +60,28 @@ async function showFeed(req, res) {
       feedList.push(oneFeed)
     }
   }
+  const followUserListOrigin = await userBasic.findAll(
+    {
+      attributes: ['userId', 'nickName'],
+      where: { userId: { [Op.or]: userId } }
+    })
+  const followUserList = followUserListOrigin.map((value) => {
+    return value.dataValues.nickName
+  })
+  // 팔로우 안한 유저 중에 랜덤하게 5명 데이터 보내기(1안)
+  const userListOrigin = await userBasic.findAll({
+    attributes: ['userId', 'nickName']
+  })
+  const userList = userListOrigin.map((value) => {
+    return value.dataValues.nickName
+  })
+  for (let i = 0; i < followUserList.length; i++) {
+    if (userList.includes(followUserList[i])) {
+      userList.splice(userList.indexOf(followUserList[i]), 1)
+    }
+  }
   feedList.sort((a, b) => b.createdAt - a.createdAt)
-  res.status(200).json({ feedList });
+  res.status(200).json({ feedList, userList });
 }
 
 async function showDetailFeed(req, res) {
@@ -89,7 +120,6 @@ async function showDetailFeed(req, res) {
 
 
 
-multer;
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
