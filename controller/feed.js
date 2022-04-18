@@ -1,4 +1,4 @@
-const { feed, userBasic, feedLike } = require("../models");
+const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo } = require("../models");
 const multer = require("multer");
 const multerS3 = require("multer-s3");
 const aws = require("aws-sdk");
@@ -7,19 +7,65 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 
 async function showFeed(req, res) {
+  let id = 2;
+  // const follows = await userFollow.findAll({ where: { user_Id: id } });
+  // const followId = follows.map((follow) => follow.followId);
+
+  // followId.map(async (a) => {
+  //   const user = await userBasic.findOne({ where: { userId: a } });
+  //   console.log(user);
+  // });
+
+  // console.log(user);
+  // const follow_Id = follows.map((follow) => follow.followId);
+  // const UserFeed = await userBasic.findAll({
+  //   where: { id },
+  //   include: [
+  //     {
+  //       model: userFollow,
+  //       as: "userFollows",
+  //       attributes: ["followId"],
+  //     },
+  //   ],
+  // });
   const Feed = await feed.findAll({
     include: [
       {
         model: userBasic,
         as: "user",
-        attributes: ["nickname"],
+        attributes: ["nickName", "userId"],
+        include: [
+          {
+            model: userFollow,
+            as: "userFollows",
+          },
+        ],
+      },
+      {
+        model: feedLike,
+        as: "feedLikes",
+        attributes: ["likeId"],
+      },
+      {
+        model: comment,
+        as: "comments",
       },
     ],
   });
+
   res.status(200).json({ Feed });
 }
+// feed: Feed.map((feeds) => {
+//   return {
+//     feedImg: feeds.feedImg,
+//     content: feeds.content,
+//     nickname: feeds.user.nickName,
+//     feedLikeCount: feeds.feedLikes.length,
+//     comment: feeds.comments,
+//   };
+// }),
 
-//multer
+multer;
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
