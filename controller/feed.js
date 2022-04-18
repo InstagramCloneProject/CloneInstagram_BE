@@ -7,6 +7,7 @@ const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const { Op } = require('sequelize');
 const { isTypedArray } = require("util/types");
+
 async function showFeed(req, res) {
   const Id = 4
   const followUsersArray = await userFollow.findAll({ where: { user_Id: Id } }).then((value) => { return value })
@@ -38,7 +39,7 @@ async function showFeed(req, res) {
   }).then((value) => { return value })
   let feedList = []
   const Feed = feedOrigin.map((value) => { return value.dataValues })
-  console.log(feedLike)
+  
   for (let i = 0; i < Feed.length; i++) {
     let realFeed = Feed[i].feeds
     let userNick = Feed[i].nickName
