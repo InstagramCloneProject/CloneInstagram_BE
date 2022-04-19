@@ -195,8 +195,9 @@ async function updateFeed(req, res) {
   const { feed_Id } = req.params
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } }) //피드가 있는지 체크
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." })
+  // TODO:  
   try {
-    await feed.update({ content, feedImg: `feedImg/${req.file.filename}` }, { where: { id: feed_Id } }) //피드 수정
+    await feed.update({ content, feedImg: `feedImg/${req.file.location}` }, { where: { id: feed_Id } }) //피드 수정
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
