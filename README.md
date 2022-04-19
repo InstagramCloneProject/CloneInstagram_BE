@@ -13,10 +13,11 @@
 
 ### Frontend(React)
 
-- 김혜리
-- 박민우
+- 신동영
+- 유현준
+- 김영우
 
-### Backend(Spring)
+### Backend(Node.js)
 
 - ***
 
