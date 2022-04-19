@@ -1,11 +1,11 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "CloneCode",
-    "description": "인스타 클로코딩",
+    "title": "짭스타그램",
+    "description": "인스타 클론코딩",
     "version": "1.0.0"
   },
-  "host": "localhost:3000",
+  "host": "hyeonjun.shop",
   "basePath": "/",
   "tags": [
     {
@@ -475,7 +475,10 @@
               "type": "object",
               "properties": {
                 "content": {
-                  "example": "any"
+                  "example": "string"
+                },
+                "feedImg": {
+                  "example": "file"
                 }
               }
             }
@@ -522,8 +525,11 @@
             "schema": {
               "type": "object",
               "properties": {
-                "where": {
-                  "example": "any"
+                "content": {
+                  "example": "string"
+                },
+                "feedImg": {
+                  "example": "file"
                 }
               }
             }
