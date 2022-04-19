@@ -74,7 +74,7 @@ async function login(req, res) {
   const user = await userBasic.findOne({ where: { userId } })
   const profileImg = await userInfo.findOne({ where: { user_Id: user.id } })
 
-  const accessToken = jwt.sign({ userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg }, process.env.SECRET_KEY, {
+  const accessToken = jwt.sign({ user_Id: user.id, userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg }, process.env.SECRET_KEY, {
     expiresIn: process.env.ACCESS_EXPIRED,
   })
   const refreshToken = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY, { expiresIn: process.env.REFRESH_EXPIRED })
