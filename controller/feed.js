@@ -1,3 +1,4 @@
+
 const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo, recommentLike } = require("../models")
 const multer = require("multer")
 const multerS3 = require("multer-s3")
@@ -7,19 +8,16 @@ const path = require("path")
 const { v4: uuidv4 } = require("uuid")
 const { Op } = require("sequelize")
 
+
+//  전체 피드 조회
 async function showFeed(req, res) {
-  const Id = 4
-  const followUsersArray = await userFollow
-    .findAll({
-      where: { user_Id: Id },
-    })
-    .then((value) => {
-      return value
-    })
-  const userId = followUsersArray.map((value) => {
-    return value.dataValues.followId
+  const { id } = res.locals
+  const followUsersArray = await userFollow.findAll({
+    where:
+      { user_Id: id }
   })
-  console.log(userId)
+    .then((value) => { return value })
+  const userId = followUsersArray.map((value) => { return value.dataValues.followId })
   const userIdArray = await userBasic.findAll({
     where: { userId: { [Op.or]: userId } },
   })
@@ -27,42 +25,36 @@ async function showFeed(req, res) {
     return value.dataValues.id
   })
   console.log(user_Id)
-  const feedOrigin = await userBasic
-    .findAll({
-      attributes: ["nickName"],
-      where: { id: { [Op.or]: user_Id } },
-      include: [
-        {
-          model: feed,
-          as: "feeds",
-          where: { user_Id: { [Op.or]: user_Id } },
-          order: [["createdAt", "desc"]],
-          limit: 3,
-          include: [
-            {
-              model: feedLike,
-              as: "feedLikes",
-              attributes: ["likeId"],
-            },
-            {
-              model: comment,
-              as: "comments",
-              include: [
-                {
-                  model: userBasic,
-                  as: "user",
-                  attributes: ["nickname"],
-                  order: [["createdAt", "desc"]],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    })
-    .then((value) => {
-      return value
-    })
+
+  const feedOrigin = await userBasic.findAll({
+    attributes: ['nickName'],
+    where: { id: { [Op.or]: user_Id } },
+    include: [{
+      model: feed,
+      as: 'feeds',
+      where: { user_Id: { [Op.or]: user_Id } },
+      order: [["createdAt", "desc"]],
+      limit: 3,
+      include: [{
+        model: feedLike,
+        as: 'feedLikes',
+        attributes: ['likeId']
+      },
+      {
+        model: comment,
+        as: 'comments',
+
+        include: [{
+          model: userBasic,
+          as: 'user',
+          attributes: ['nickname'],
+          order: [['createdAt', 'desc']],
+        }],
+      }]
+    }]
+  }).then((value) => { return value })
+
+
   let feedList = []
   const Feed = feedOrigin.map((value) => {
     return value.dataValues
@@ -76,33 +68,31 @@ async function showFeed(req, res) {
       feedList.push(oneFeed)
     }
   }
-  feedList.sort((a, b) => b.createdAt - a.createdAt)
-  const followUserListOrigin = await userBasic.findAll({
-    attributes: ["userId", "nickName"],
-    where: { userId: { [Op.or]: userId } },
-  })
-  const followUserList = followUserListOrigin.map((value) => {
-    return value.dataValues.nickName
-  })
-  // 팔로우 안한 유저 중에 랜덤하게 5명 데이터 보내기(1안)
-  const userListOrigin = await userBasic.findAll({
-    attributes: ["userId", "nickName"],
-  })
-  const userList = userListOrigin.map((value) => {
-    return value.dataValues.nickName
-  })
-  for (let i = 0; i < followUserList.length; i++) {
-    if (userList.includes(followUserList[i])) {
-      userList.splice(userList.indexOf(followUserList[i]), 1)
-    }
-  }
-  feedList.sort((a, b) => b.createdAt - a.createdAt)
-  res.status(200).json({ feedList, userList })
-}
 
+  // 팔로우 안한 유저 중에 랜덤하게 5명 데이터 보내기(1안)
+  const followerUserOrigin = await userFollow.findAll({
+    attributes: ["followId"],
+    where: { user_Id: id }
+
+  })
+  const followUserList = followerUserOrigin.map((value) => { return value.dataValues.followId })
+
+  const unfollowList = await userBasic.findAll({
+    where: { userId: { [Op.notIn]: followUserList }, },
+    attributes: ["userId", "nickName", "id"],
+    include: [{
+      model: userInfo,
+      as: "userInfos",
+      attributes: ["profileImg"]
+    }]
+  })
+
+  res.status(200).json({ success: true, feed: feedList, unfollowList });
+
+}
+// 상세 페이지
 async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
-
   const Feed = await feed.findAll({
     where: { id: feed_Id },
     include: [
@@ -157,6 +147,8 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10mb로 용량 제한
 })
 
+
+//  피드 작성
 async function applyFeed(req, res) {
   const { content } = req.body
   //로컬로 변경해야함
@@ -171,6 +163,7 @@ async function applyFeed(req, res) {
   }
 }
 
+// 피드 수정
 async function updateFeed(req, res) {
   const { user } = res.locals //로그인 한 유저 정보
   const userCheck = await feed.findOne({ where: { user_Id: user.id } }) //피드에서 해당 유저 찾기
@@ -187,6 +180,7 @@ async function updateFeed(req, res) {
   }
 }
 
+//  피드 삭제
 async function deletFeed(req, res) {
   const { user } = res.locals //로그인 한 유저 정보
   const { feed_Id } = req.params
