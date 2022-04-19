@@ -5,7 +5,7 @@ const doc = {
     title: "CloneCode",
     description: "인스타 클로코딩",
   },
-  host: "localhost:3000",
+  host: "hyeonjun.shop",
   schemes: ["http"],
   tags: [
     {
