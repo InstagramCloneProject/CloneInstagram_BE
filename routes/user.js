@@ -4,10 +4,10 @@ const joimiddleware = require("../middlewares/joi")
 const authmiddleware = require("../middlewares/auth")
 // router.get("/", bbbController);
 
-router.post("/join", joimiddleware, userController.join);
-router.post('/login', userController.login);
+router.post("/join", joimiddleware, userController.join)
+router.post("/login", userController.login)
 
-router.get("/:user_Id", authmiddleware, userController.showMyPage);
+router.get("/:user_Id", authmiddleware, userController.showMyPage)
 router.post("/:user_Id/follow", authmiddleware, userController.follow)
 
 router.delete("/:user_Id/follow", authmiddleware, userController.unfollow)

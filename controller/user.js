@@ -1,9 +1,7 @@
-
-const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo, recommentLike } = require('../models/index')
-const jwt = require('jsonwebtoken')
-const bcrypt = require('bcrypt')
-const { exist } = require('joi')
-
+const { feed, userBasic, feedLike, comment, commentLike, recomment, userFollow, userInfo, recommentLike } = require("../models/index")
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt")
+const { exist } = require("joi")
 
 // about multer and s3
 const multer = require("multer")
@@ -44,20 +42,23 @@ async function login(req, res) {
   // userId의 password 찾기
   const existUser = await userBasic.findOne({ where: { userId } })
   if (!existUser) {
-    res.status(400).json({ success: false, errormsg: '아이디를 확인해주세요.' })
+    res.status(400).json({ success: false, errormsg: "아이디를 확인해주세요." })
     return
   }
-  const userPassword = await userBasic.findOne({ where: { userId } }).then((value) => { return value.password })
+  const userPassword = await userBasic.findOne({ where: { userId } }).then((value) => {
+    return value.password
+  })
   //  입력된 비밀번호와 DB 비밀번호 비교
   const passwordCheck = await bcrypt.compare(password, userPassword)
 
   if (passwordCheck === false) {
-    res.status(400).json({ success: false, errormsg: '비밀번호를 확인해주세요.' })
+    res.status(400).json({ success: false, errormsg: "비밀번호를 확인해주세요." })
     return
   }
   // 모두 확인되면, userId로 토큰 발급하기.
   const user = await userBasic.findOne({ where: { userId } })
   const profileImg = await userInfo.findOne({ where: { user_Id: user.id } })
+
   const accessToken = jwt.sign(
     { userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg },
     process.env.SECRET_KEY,
@@ -199,10 +200,10 @@ async function deleteProfileImg(req, res) {
 }
 
 async function showMyPage(req, res) {
-  const { user_Id } = req.params; //유저 받기
-  const follow = await userBasic.findOne({ where: { id: user_Id } }); // 유저정보 찾기
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } }); //나를 팔로우 하는 아이디
-  follower.map((id) => console.log(id.id));
+  const { user_Id } = req.params //유저 받기
+  const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
+  const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //나를 팔로우 하는 아이디
+  follower.map((id) => console.log(id.id))
   const mypage = await userBasic.findAll({
     where: {
       id: user_Id,
@@ -221,7 +222,7 @@ async function showMyPage(req, res) {
         attributes: ["feedImg"],
       },
     ],
-  });
+  })
   res.json({
     result: mypage.map((value) => {
       return {
@@ -232,9 +233,9 @@ async function showMyPage(req, res) {
         feedImg: value.feeds,
         follower: follower.length,
         following: value.userFollows.length,
-      };
+      }
     }),
-  });
+  })
 }
 
 module.exports = {
@@ -246,6 +247,5 @@ module.exports = {
   applyProfileImg,
   updateProfileImg,
   deleteProfileImg,
-  showMyPage
+  showMyPage,
 }
-
