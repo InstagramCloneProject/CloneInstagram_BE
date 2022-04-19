@@ -15,5 +15,4 @@ router.get("/:feed_Id", authmiddleware, feedController.showDetailFeed);
 router.post("/:feed_Id/likes", authmiddleware, feedController.likeFeed);
 router.delete("/:feed_Id/unlikes", authmiddleware, feedController.unlikeFeed);
 
-
-module.exports = router;
+module.exports = router

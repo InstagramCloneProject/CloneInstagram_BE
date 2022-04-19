@@ -101,18 +101,14 @@ async function showMyPage(req, res) {
   const { user_Id } = req.params //유저 받기
   const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
 
-  // 나 : hihihi4
+  const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //
 
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } })
+  console.log(follower.length)
 
-  follower.map((a) => {
-    //나를 팔로우 하는 아이디
-    console.log(a.user)
-  })
   const feeds = await feed.findAll({
     where: { user_Id },
     order: [["createdAt", "DESC"]],
-    attributes: ["feedImg"],
+    attributes: ["id", "feedImg"],
     include: [
       {
         model: comment,
@@ -127,7 +123,7 @@ async function showMyPage(req, res) {
       {
         model: userBasic,
         as: "user",
-        attributes: ["userId", "nickname"],
+        attributes: ["userId", "nickName"],
         include: [
           {
             model: userInfo,
@@ -142,11 +138,36 @@ async function showMyPage(req, res) {
       },
     ],
   })
+  console.log("피드 개수: " + feeds.length)
+  feeds.map((value) => {
+    console.log("피드 이미지 :" + value.feedImg)
+    console.log("댓글 수 :" + value.comments.length)
+    console.log("좋아요 수 :" + value.feedLikes.length)
+    console.log("유저 아이디 :" + value.user.userId)
+    console.log("유저 닉네임 :" + value.user.nickName)
+    console.log("유저 프로필 :" + value.user.userInfos[0].profileImg)
+    console.log("내가 팔로우 한 수: " + value.user.userFollows.length)
+    console.log("내가 팔로잉 한 수: " + follower.length)
+  })
   //피드 이미지, 피드 개수
   //댓글 개수
   //유저 닉네임, 유저 아이디, 유저 프로필 사진
   //유저 팔로워 , 팔로잉 수
-  res.json({ feeds })
+  res.json({
+    feeds: feeds.map((value) => {
+      return {
+        feedCount: feeds.length,
+        feedImage: value.feedImg,
+        feedLikesCount: value.feedLikes.length,
+        comment: value.comments.length,
+        userId: value.user.userId,
+        nickname: value.user.nickName,
+        ProfileImg: value.user.userInfos[0].profileImg,
+        followCount: value.user.userFollows.length,
+        followingCount: follower.length,
+      }
+    }),
+  })
 }
 async function applyProfileImg(req, res) {
   const { user_Id } = req.params
