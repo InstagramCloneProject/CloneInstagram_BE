@@ -10,7 +10,7 @@ const corsOptions = {
   credentials: true, // true로 하면 설정한 내용을 response 헤더에 추가 해줍니다.
 }
 
-app.use(cors())
+app.use(cors(corsOptions))
 // app.use(morgan("dev"));
 const removeHeader = (req, res, next) => {
   res.removeHeader("X-Powered-By")
