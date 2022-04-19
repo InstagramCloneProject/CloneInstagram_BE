@@ -8,16 +8,17 @@ const { v4: uuidv4 } = require("uuid");
 
 const { Op } = require('sequelize');
 const { isTypedArray } = require("util/types");
+const { Console } = require("console");
 
+//  전체 피드 조회
 async function showFeed(req, res) {
-  const Id = 4
+  const { id } = res.locals
   const followUsersArray = await userFollow.findAll({
     where:
-      { user_Id: Id }
+      { user_Id: id }
   })
     .then((value) => { return value })
   const userId = followUsersArray.map((value) => { return value.dataValues.followId })
-  console.log(userId)
   const userIdArray = await userBasic.findAll({
     where:
       { userId: { [Op.or]: userId } }
@@ -41,15 +42,17 @@ async function showFeed(req, res) {
       {
         model: comment,
         as: 'comments',
+
         include: [{
           model: userBasic,
           as: 'user',
           attributes: ['nickname'],
-          order: [['createdAt', 'desc']]
+          order: [['createdAt', 'desc']],
         }],
       }]
     }]
   }).then((value) => { return value })
+
   let feedList = []
   const Feed = feedOrigin.map((value) => { return value.dataValues })
   for (let i = 0; i < Feed.length; i++) {
@@ -61,35 +64,27 @@ async function showFeed(req, res) {
       feedList.push(oneFeed);
     }
   }
-  feedList.sort((a, b) => b.createdAt - a.createdAt);
-  res.status(200).json({ feedList });
-  const followUserListOrigin = await userBasic.findAll(
-    {
-      attributes: ['userId', 'nickName'],
-      where: { userId: { [Op.or]: userId } }
-    })
-  const followUserList = followUserListOrigin.map((value) => {
-    return value.dataValues.nickName
-  })
   // 팔로우 안한 유저 중에 랜덤하게 5명 데이터 보내기(1안)
-  const userListOrigin = await userBasic.findAll({
-    attributes: ['userId', 'nickName']
+  const followerUserOrigin = await userFollow.findAll({
+    attributes: ["followId"],
+    where: { user_Id: id }
   })
-  const userList = userListOrigin.map((value) => {
-    return value.dataValues.nickName
-  })
-  for (let i = 0; i < followUserList.length; i++) {
-    if (userList.includes(followUserList[i])) {
-      userList.splice(userList.indexOf(followUserList[i]), 1)
-    }
-  }
-  feedList.sort((a, b) => b.createdAt - a.createdAt)
-  res.status(200).json({ feedList, userList });
-}
+  const followUserList = followerUserOrigin.map((value) => { return value.dataValues.followId })
 
+  const unfollowList = await userBasic.findAll({
+    where: { userId: { [Op.notIn]: followUserList }, },
+    attributes: ["userId", "nickName", "id"],
+    include: [{
+      model: userInfo,
+      as: "userInfos",
+      attributes: ["profileImg"]
+    }]
+  })
+  res.status(200).json({ success: true, feed: feedList, unfollowList });
+}
+// 상세 페이지
 async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
-
   const Feed = await feed.findAll({
     where: { id: feed_Id },
     include: [{
@@ -121,45 +116,6 @@ async function showDetailFeed(req, res) {
   res.status(200).json({ Feed });
 }
 
-async function showMyPage(req, res) {
-  const { user_Id } = req.params; //유저 받기
-  const follow = await userBasic.findOne({ where: { id: user_Id } }); // 유저정보 찾기
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } }); //나를 팔로우 하는 아이디
-  follower.map((id) => console.log(id.id));
-  const mypage = await userBasic.findAll({
-    where: {
-      id: user_Id,
-    },
-    attributes: ["userId", "nickName"],
-    include: [
-      {
-        model: userFollow,
-        as: "userFollows",
-        attributes: ["followId"], //내가 팔로우 하는 아이디 {
-      },
-      { model: userInfo, as: "userInfos", attributes: ["profileImg"] },
-      {
-        model: feed,
-        as: "feeds",
-        attributes: ["feedImg"],
-      },
-    ],
-  });
-  res.json({
-    result: mypage.map((value) => {
-      return {
-        userId: value.userId,
-        nickname: value.nickName,
-        profileImg: value.userInfos[0].profileImg,
-        feedCount: value.feeds.length,
-        feedImg: value.feeds,
-        follower: follower.length,
-        following: value.userFollows.length,
-      };
-    }),
-  });
-}
-
 const s3 = new aws.S3();
 const upload = multer({
   storage: multerS3({
@@ -176,6 +132,8 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10mb로 용량 제한
 });
 
+
+//  피드 작성
 async function applyFeed(req, res) {
   const { content } = req.body;
   //로컬로 변경해야함
@@ -190,6 +148,7 @@ async function applyFeed(req, res) {
   }
 }
 
+// 피드 수정
 async function updateFeed(req, res) {
   //게시글작성자와 수정하려는 자를 확인할 코드 필요
   const { content } = req.body;
@@ -204,6 +163,7 @@ async function updateFeed(req, res) {
   }
 }
 
+//  피드 삭제
 async function deletFeed(req, res) {
   //게시글작성자와 삭제하려는 자를 확인할 코드 필요
   const { feed_Id } = req.params;
@@ -252,7 +212,6 @@ async function unlikeFeed(req, res) {
 
 module.exports = {
   showFeed,
-  showMyPage,
   applyFeed,
   updateFeed,
   deletFeed,

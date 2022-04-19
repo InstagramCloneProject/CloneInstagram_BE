@@ -4,87 +4,95 @@
 // access, refresh 모두 만료
 
 // 사용자 인증 미들웨어
-const { userBasic } = require('../models/index')
+const { userBasic, userInfo } = require('../models/index')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 require('dotenv').config()
 
 module.exports = async (req, res, next) => {
-    const { authorization } = req.headers
-    const [tokenType, tokenValue] = authorization.split(' ') // access token
-    // token type 검증 
-    if (tokenType != 'Bearer') {
-        console.log('토큰타입에러 발생')
-        res.status(401).send({
-            errorMessaage: '로그인 후 사용하세요.'
-        })
-        return
-    }
-
-    const accessTokenValue = checkExpired(tokenValue) // access token verify 값
-    console.log('accesstoken:' + accessTokenValue)
-    // access 만료
-    if (accessTokenValue === 'jwt expired') {
-        console.log('access토큰 만료')
-        const valueInToken = jwt.decode(tokenValue)
-        const userRefreshToken = await userBasic.findOne({ where: { userId: valueInToken.userId } }).then((value) => {
-            try {
-                return checkExpired(value.refreshToken)
-            } catch (err) {
-                return 'jwt expired'
-            }
-        })
-        // 1. access 만료 + refresh 유효 => access 재발급
-        if (userRefreshToken !== 'jwt expired') {
-            console.log('stage1: access 만료 + refresh 유효')
-            const userRefreshToken = await userBasic.findOne({ where: { userId: valueInToken.userId } }).then((value) => { return value.refreshToken })
-            await userBasic.findOne({ where: { refreshToken: userRefreshToken } }).then((value) => {
-                const accessToken = jwt.sign({ userId: value.userId, nickName: value.nickName }, process.env.SECRET_KEY, { expiresIn: '300s' })
-                res.status(200).json({ accessToken })
-            })
-        } else {
-            // 2. access + refresh 모두 만료
-            console.log('stage2: access 만료 + refresh 만료')
-            res.status(400).json({ errormsg: '모든 토큰 만료' })
-            return
-        }
-    } else {
-        // access 유효
-        console.log('access 토큰 유효')
-        const userRefreshToken = await userBasic.findOne({ where: { userId: accessTokenValue.userId } }).then((value) => {
-            try {
-                return value.refreshToken
-            } catch (err) {
-                return 'jwt expired'
-            }
-        })
-        // 3. access 유효 + refresh 만료 => refresh 발급
-        if (userRefreshToken === 'jwt expired') {
-            console.log('stage3: access 만료 + refresh 유효')
-            await userBasic.update({ refreshToken }, { where: { userId: accessTokenValue.userId } })
-        }
-        try {
-            // 4. access 유효 + refresh 유효 => user 정보 보내주기.
-            console.log('stage4: access 유효 + refresh 유효')
-            const user = await userBasic.findOne({ where: { userId: accessTokenValue.userId } }).then((value) => { return value.dataValues.userId })
-            res.locals.user = user
-            next()
-        }
-        // access 변조
-        catch (error) {
-            console.log('???')
-            res.status(401).json({
-                errorMessage: '로그인 후 사용하세요.'
-            })
-            return
-        }
-    }
-}
-// 토큰 verify function
-function checkExpired(tokenValue) {
     try {
-        return jwt.verify(tokenValue, process.env.SECRET_KEY)
+        if (!req.headers.authorization) {
+            return res.satus(401).json({
+                result: false,
+                message: '로그인 후 사용하세요',
+                reason: '헤더에 토큰이 없어요'
+            })
+        }
+        const { authorization } = req.headers
+        const [tokenType, tokenValue] = authorization.split(' ') // access token
+        if (tokenType != 'Bearer') {
+            console.log('토큰타입에러 발생')
+            res.status(401).send({
+                message: '로그인 후 사용하세요.'
+            })
+            return
+        }
+        const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
+        console.log(authedToken)
+        const user = await userBasic.findOne({ where: { userId: authedToken.userId } })
+        res.locals.id = user.id
+        res.locals.userId = user.userId
+        res.locals.nickName = user.nickName
+        res.locals.profileImg = user.profileImg
+        next()
     } catch (err) {
-        return 'jwt expired'
+        try {
+            if (err.name === 'TokenExpiredError') {
+                const reAuthorization = req.headers.reauthorization
+                const [tokenType, tokenValue] = reAuthorization.split(' ')
+                if (tokenType !== 'Bearer') {
+                    return res.status(401).json({
+                        result: false,
+                        message: '로그인 후 사용하세요',
+                        reason: '리프레쉬 토큰이 Bearer가 아니에요'
+                    })
+                }
+                // const accessToken = jwt.sign({
+                // userId: user.userId,
+                // nickName: user.nickName }, process.env.SECRET_KEY, { expiresIn: '30s' })
+                const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
+                const user = await userBasic.findOne({ where: { userId: authedToken.userId } })
+                const profileImg = await userInfo.findOne({ where: { user_Id: user.id } })
+                const newAccessToken = jwt.sign({
+                    userId: user.userId,
+                    nickName: user.nickNaME,
+                    profileImg: profileImg.profileImg
+                }, process.env.SECRET_KEY, { expiresIn: '60s' })
+                res.status(401).json({
+                    result: true,
+                    atoken: newAccessToken,
+                })
+            }
+            else {
+                res.status(401).json({
+                    result: false,
+                    message: '다시 로그인하셔야 합니다',
+                    reason: 'access토큰에 문제가 있네요(기한만료가 아닌 에러)'
+                })
+            }
+        }
+        catch (err) {
+            if (err.name === 'TokenExpiredError') {
+                res.status(401).send({
+                    result: false,
+                    message: '다시 로그인하셔야 합니다',
+                    reason: '리프레쉬 토큰까지 만료됐어요',
+                    err
+                })
+            } else {
+                console.log(err)
+                res.status(401).json({
+                    result: false,
+                    message: '다시 로그인하셔야 합니다',
+                    reason: '리프레쉬 토큰에 문제가 있네요(기한만료가 아닌 에러)',
+                    err
+                })
+            }
+
+        }
     }
 }
+
+
+
+
