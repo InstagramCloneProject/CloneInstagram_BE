@@ -30,8 +30,6 @@ async function showFeed(req, res) {
   const user_Id = userIdArray.map((value) => {
     return value.dataValues.id
   })
-  console.log(user_Id)
-
   const feedOrigin = await userBasic
     .findAll({
       attributes: ["nickName"],
@@ -174,13 +172,12 @@ async function applyFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드작성"
   const { content } = req.body
-  //로컬로 변경해야함
   const { id } = res.locals
   if (!req.file) return res.status(400).json({ message: "이미지를 넣어주세요" }) //이미지 없을때
-  console.log(req.file.location)
+
   try {
-    await feed.create({ content, user_Id: id, feedImg: req.file.location }) //피드 생성
-    res.status(200).json({ success: true })
+    const findFeed = await feed.create({ content, user_Id: id, feedImg: req.file.location }) //피드 생성
+    res.status(200).json({ success: true, feedId: findFeed.id, feedCreatedAt: findFeed.createdAt })
   } catch (err) {
     res.status(400).json({ success: false })
   }
