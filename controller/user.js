@@ -19,6 +19,11 @@ async function join(req, res) {
   // #swagger.description = "여기는 회원가입 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "회원가입"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { userId } = req.body
   const { nickName, password } = req.body
   // DB에 동일한 userId를 가진 데이터가 있는지 확인하기
@@ -33,8 +38,7 @@ async function join(req, res) {
   let user
   await userBasic.create({ userId, nickName, password: pw_hash }).then((value) => {
     user = value
-  }
-  )
+  })
   const user_Id = user.dataValues.id
   await userInfo.create({ user_Id, profileImg: process.env.DEFAULT_PROFILEIMG })
   res.status(201).json({ success: true, msg: "회원가입에 성공했습니다." })
@@ -44,6 +48,11 @@ async function login(req, res) {
   // #swagger.description = "여기는 로그인 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "로그인"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { userId, password } = req.body
   // userId의 password 찾기
   const existUser = await userBasic.findOne({ where: { userId } })
@@ -65,12 +74,10 @@ async function login(req, res) {
   const user = await userBasic.findOne({ where: { userId } })
   const profileImg = await userInfo.findOne({ where: { user_Id: user.id } })
 
-  const accessToken = jwt.sign(
-    { userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg },
-    process.env.SECRET_KEY,
-    { expiresIn: process.env.ACCESS_EXPIRED })
-  const refreshToken = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY,
-    { expiresIn: process.env.REFRESH_EXPIRED })
+  const accessToken = jwt.sign({ userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg }, process.env.SECRET_KEY, {
+    expiresIn: process.env.ACCESS_EXPIRED,
+  })
+  const refreshToken = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY, { expiresIn: process.env.REFRESH_EXPIRED })
   // await userBasic.update({ refreshToken }, { where: { userId } })
   res.status(200).json({ success: true, accessToken, refreshToken })
 }
@@ -80,6 +87,11 @@ async function follow(req, res) {
   // #swagger.description = "여기는 팔로우 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "팔로우 추가"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const user_Id = req.params.user_Id // 팔로우 버튼 클릭한 유저
   const { followId } = req.body // 유저가 팔로우한 ID
   await userFollow.create({ user_Id, followId })
@@ -90,6 +102,11 @@ async function unfollow(req, res) {
   // #swagger.description = "여기는 언팔로우 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "팔로우 삭제"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { user_Id } = req.params
   console.log(user_Id)
   const { followId } = req.body
@@ -120,6 +137,11 @@ async function showMyPage(req, res) {
   // #swagger.description = "여기는 개인 프로필 페이지를 조회 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "개인 프로필 페이지 조회"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { user_Id } = req.params //유저 받기
   const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
 
@@ -195,6 +217,11 @@ async function applyProfileImg(req, res) {
   // #swagger.description = "여기는 프로필 이미지를 추가 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "프로필 이미지 추가"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { user_Id } = req.params
   if (!req.file) return res.status(400).json({ errormsg: "이미지를 넣어주세요." })
   console.log(req.file)
@@ -208,6 +235,11 @@ async function updateProfileImg(req, res) {
   // #swagger.description = "여기는 프로필 이미지를 수정 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "프로필 이미지 수정"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { user_Id } = req.params
   const updateProfileImg = req.file.location
   await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
@@ -218,6 +250,11 @@ async function deleteProfileImg(req, res) {
   // #swagger.description = "여기는 프로필 이미지를 삭제 하는 곳 입니다."
   // #swagger.tags = ["User"]
   // #swagger.summary = "프로필 이미지 삭제"
+  /* #swagger.responses[200] = {
+            schema: {
+               success : true
+            }
+        } */
   const { user_Id } = req.params
   await userInfo.update({ profileImg: process.env.DEFAULT_PROFILEIMG }, { where: { user_Id } })
   res.status(200).json({ success: true })
