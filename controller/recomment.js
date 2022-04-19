@@ -1,6 +1,9 @@
 const { recomment, recommentLike } = require('../models/index')
 
 async function applyRecomment(req, res) {
+	// #swagger.description = "여기는 대댓글을 작성하는 곳 입니다."
+	// #swagger.tags = ["Recomment"]
+	// #swagger.summary = "대댓글작성"
 	const { content, comment_Id } = req.body
 	const { id } = res.locals
 
@@ -11,6 +14,9 @@ async function applyRecomment(req, res) {
 }
 
 async function updateRecomment(req, res) {
+	// #swagger.description = "여기는 대댓글을 수정하는 곳 입니다."
+	// #swagger.tags = ["Recomment"]
+	// #swagger.summary = "대댓글수정"
 	const { recomment_Id } = req.params
 	const { content } = req.body
 
@@ -20,6 +26,9 @@ async function updateRecomment(req, res) {
 }
 
 async function deleteRecomment(req, res) {
+	// #swagger.description = "여기는 대댓글을 작성하는 곳 입니다."
+	// #swagger.tags = ["Recomment"]
+	// #swagger.summary = "대댓글삭제"
 	const { recomment_Id } = req.params
 
 	await recomment.destroy({ where: { id: recomment_Id } })
@@ -28,6 +37,9 @@ async function deleteRecomment(req, res) {
 }
 
 async function likeRecomment(req, res) {
+	// #swagger.description = "여기는 대댓글좋아요 하는 곳 입니다."
+	// #swagger.tags = ["Recomment"]
+	// #swagger.summary = "대댓글좋아요"
 	const { recomment_Id } = req.params
 	const { id, userId } = res.locals
 
@@ -37,6 +49,9 @@ async function likeRecomment(req, res) {
 }
 
 async function unlikeRecomment(req, res) {
+	// #swagger.description = "여기는 대댓글좋아요 취소 하는 곳 입니다."
+	// #swagger.tags = ["Recomment"]
+	// #swagger.summary = "대댓글좋아요 취소"
 	const { recomment_Id } = req.params
 	const { id } = res.locals
 
