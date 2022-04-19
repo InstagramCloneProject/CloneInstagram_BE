@@ -29,7 +29,7 @@ async function join(req, res) {
   // DB에 동일한 userId를 가진 데이터가 있는지 확인하기
   const existUser = await userBasic.findOne({ where: { userId } })
   if (existUser) {
-    res.status(400).json({ success: false, errormsg: "이미 가입된 아이디가 있습니다." })
+    res.status(400).json({ success: false, message: "이미 가입된 아이디가 있습니다." })
     return
   }
   const pw_hash = await bcrypt.hash(password, Number(saltRounds)).then((value) => {
@@ -41,7 +41,7 @@ async function join(req, res) {
   })
   const user_Id = user.dataValues.id
   await userInfo.create({ user_Id, profileImg: process.env.DEFAULT_PROFILEIMG })
-  res.status(201).json({ success: true, msg: "회원가입에 성공했습니다." })
+  res.status(201).json({ success: true, message: "회원가입에 성공했습니다." })
 }
 
 async function login(req, res) {
@@ -57,7 +57,7 @@ async function login(req, res) {
   // userId의 password 찾기
   const existUser = await userBasic.findOne({ where: { userId } })
   if (!existUser) {
-    res.status(400).json({ success: false, errormsg: "아이디를 확인해주세요." })
+    res.status(400).json({ success: false, message: "아이디를 확인해주세요." })
     return
   }
   const userPassword = await userBasic.findOne({ where: { userId } }).then((value) => {
@@ -67,7 +67,7 @@ async function login(req, res) {
   const passwordCheck = await bcrypt.compare(password, userPassword)
 
   if (passwordCheck === false) {
-    res.status(400).json({ success: false, errormsg: "비밀번호를 확인해주세요." })
+    res.status(400).json({ success: false, message: "비밀번호를 확인해주세요." })
     return
   }
   // 모두 확인되면, userId로 토큰 발급하기.

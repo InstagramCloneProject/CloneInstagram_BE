@@ -454,7 +454,7 @@
           "Feed"
         ],
         "summary": "피드조회",
-        "description": "여기는 피드를 조회 하는 곳 입니다.",
+        "description": "여기는 피드를 조회 하는 곳 입니다.!",
         "parameters": [
           {
             "name": "authorization",
@@ -470,6 +470,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "401": {
             "description": "Unauthorized"

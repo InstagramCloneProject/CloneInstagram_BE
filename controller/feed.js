@@ -9,9 +9,10 @@ const { Op } = require("sequelize")
 
 //  전체 피드 조회
 async function showFeed(req, res) {
-  // #swagger.description = "여기는 피드를 조회 하는 곳 입니다."
+  // #swagger.description = "여기는 피드를 조회 하는 곳 입니다.!"
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드조회"
+
   const { id } = res.locals
   const followUsersArray = await userFollow
     .findAll({
@@ -106,6 +107,7 @@ async function showFeed(req, res) {
 
   res.status(200).json({ success: true, feed: feedList, unfollowList })
 }
+
 // 상세 페이지
 async function showDetailFeed(req, res) {
   // #swagger.description = "여기는 피드를 상세조회 하는 곳 입니다."
