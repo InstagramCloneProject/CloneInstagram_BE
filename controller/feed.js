@@ -192,16 +192,26 @@ async function updateFeed(req, res) {
   }
 }
 
-//  피드 삭제
 async function deletFeed(req, res) {
   const { id } = res.locals //로그인 한 유저 정보
   const { feed_Id } = req.params
+  const { image } = req.body
+  const findImg = image.split(".com")[1].split("feedImage")[1].split("/")[1]
   const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "삭제 권한이 없습니다." }) //없으면 삭제 불가
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." }) //안해주면 피드가 없어서 삭제는 안되지만 성공으로 들어감 이유는?
+
+  const params = {
+    Bucket: "cloneproject-instagram",
+    Key: `feedImage/${findImg}`,
+  }
+
   try {
     await feed.destroy({ where: { id: feed_Id } }) //피드삭제
+    s3.deleteObject(params, function (err, data) {
+      console.log(err)
+    })
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
