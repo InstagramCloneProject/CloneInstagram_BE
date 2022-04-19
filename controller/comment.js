@@ -1,10 +1,10 @@
 const { comment } = require('../models/index')
 
 async function applyComment(req, res) {
-	const { content } = req.body
-	const { user_Id, feed_Id } = req.body
+	const { content, feed_Id } = req.body
+	const { id } = res.locals
 
-	await comment.create( { content, user_Id, feed_Id } )
+	await comment.create({ content, user_Id: id, feed_Id })
 
 	res.json({ success: true })
 }
@@ -13,7 +13,7 @@ async function updateComment(req, res) {
 	const { comment_Id } = req.params
 	const { content } = req.body
 
-	await comment.update( { content }, { where: { id: comment_Id } } )
+	await comment.update({ content }, { where: { id: comment_Id } })
 
 	res.json({ success: true })
 }
@@ -28,18 +28,19 @@ async function deleteComment(req, res) {
 
 async function likeComment(req, res) {
 	const { comment_Id } = req.params
-	const { likeId, user_Id } = req.body
+	const { likeId } = req.body
+	const { id } = res.locals
 
-	await commentLike.create({ comment_Id, likeId, user_Id })
+	await commentLike.create({ comment_Id, likeId, user_Id: id })
 
 	res.json({ success: true })
 }
 
 async function unlikeComment(req, res) {
 	const { comment_Id } = req.params
-	const { user_Id } = req.body
+	const { id } = res.locals
 
-	await commentLike.destroy({ where: { comment_Id, user_Id } })
+	await commentLike.destroy({ where: { comment_Id, user_Id: id } })
 	res.json({ success: true })
 }
 

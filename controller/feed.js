@@ -152,11 +152,11 @@ const upload = multer({
 async function applyFeed(req, res) {
   const { content } = req.body
   //로컬로 변경해야함
-  const { user } = res.locals
+  const { id } = res.locals
   if (!req.file) return res.status(400).json({ message: "이미지를 넣어주세요" }) //이미지 없을때
   console.log(req.file.location)
   try {
-    await feed.create({ content, user_Id: user.id, feedImg: req.file.location }) //피드 생성
+    await feed.create({ content, user_Id: id, feedImg: req.file.location }) //피드 생성
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
@@ -165,8 +165,8 @@ async function applyFeed(req, res) {
 
 // 피드 수정
 async function updateFeed(req, res) {
-  const { user } = res.locals //로그인 한 유저 정보
-  const userCheck = await feed.findOne({ where: { user_Id: user.id } }) //피드에서 해당 유저 찾기
+  const { id } = res.locals //로그인 한 유저 정보
+  const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "수정 권한이 없습니다." }) //없으면 수정 불가
   const { content } = req.body
   const { feed_Id } = req.params
@@ -182,9 +182,9 @@ async function updateFeed(req, res) {
 
 //  피드 삭제
 async function deletFeed(req, res) {
-  const { user } = res.locals //로그인 한 유저 정보
+  const { id } = res.locals //로그인 한 유저 정보
   const { feed_Id } = req.params
-  const userCheck = await feed.findOne({ where: { user_Id: user.id } }) //피드에서 해당 유저 찾기
+  const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "삭제 권한이 없습니다." }) //없으면 삭제 불가
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." }) //안해주면 피드가 없어서 삭제는 안되지만 성공으로 들어감 이유는?
@@ -198,9 +198,9 @@ async function deletFeed(req, res) {
 
 async function likeFeed(req, res) {
   const { feed_Id } = req.params //어떤 피드에 좋아요
-  const { user } = res.locals
+  const { userId } = res.locals
   try {
-    const userlike = await userBasic.findOne({ where: { userId: user.userId } }) //좋아요 누른 유저 찾기
+    const userlike = await userBasic.findOne({ where: { userId } }) //좋아요 누른 유저 찾기
     await feedLike.create({ feed_Id, likeId, user_Id: userlike.id }) //좋아요 누른 피드 ,유저 추가
     res.status(200).json({ success: true })
   } catch (err) {
@@ -210,9 +210,9 @@ async function likeFeed(req, res) {
 
 async function unlikeFeed(req, res) {
   const { feed_Id } = req.params
-  const { user } = res.locals
+  const { userId } = res.locals
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } }) //피드 체크
-  const userUnlike = await userBasic.findOne({ where: { userId: user.userId } }) //유저체크
+  const userUnlike = await userBasic.findOne({ where: { userId } }) //유저체크
   try {
     if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." })
     if (!userUnlike) return res.status(400).json({ messeage: "좋아요를 누른 유저가 아닙니다." })
