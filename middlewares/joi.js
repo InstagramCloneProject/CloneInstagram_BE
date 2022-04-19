@@ -14,7 +14,7 @@ module.exports = (req, res, next) => {
     joischema.validateAsync({ userId, nickName, password }).then((value) => {
         next()
     }).catch((error) => {
-        res.status(400).send({ success: false, errormsg: '아이디, 닉네임, 패스워드를 확인해주세요.' })
+        res.status(400).send({ success: false, message: '아이디, 닉네임, 패스워드를 확인해주세요.' })
         return
     })
 }
