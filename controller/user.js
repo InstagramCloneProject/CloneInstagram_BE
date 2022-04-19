@@ -20,7 +20,6 @@ async function join(req, res) {
   const { nickName, password } = req.body
   // DB에 동일한 userId를 가진 데이터가 있는지 확인하기
   const existUser = await userBasic.findOne({ where: { userId } })
-  console.log(saltRounds)
   if (existUser) {
     res.status(400).json({ success: false, errormsg: "이미 가입된 아이디가 있습니다." })
     return
@@ -28,7 +27,13 @@ async function join(req, res) {
   const pw_hash = await bcrypt.hash(password, Number(saltRounds)).then((value) => {
     return value
   })
-  await userBasic.create({ userId, nickName, password: pw_hash })
+  let user
+  await userBasic.create({ userId, nickName, password: pw_hash }).then((value) => {
+    user = value
+  }
+  )
+  const user_Id = user.dataValues.id
+  await userInfo.create({ user_Id, profileImg: process.env.DEFAULT_PROFILEIMG })
   res.status(201).json({ success: true, msg: "회원가입에 성공했습니다." })
 }
 
@@ -53,15 +58,16 @@ async function login(req, res) {
   // 모두 확인되면, userId로 토큰 발급하기.
   const user = await userBasic.findOne({ where: { userId } })
   const profileImg = await userInfo.findOne({ where: { user_Id: user.id } })
-  const accessToken = jwt.sign({ userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg }, process.env.SECRET_KEY, {
-    expiresIn: "300s",
-  })
-  const refreshToken = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY, { expiresIn: "600s" })
+
+  const accessToken = jwt.sign(
+    { userId: user.userId, nickName: user.nickName, profileImg: profileImg.profileImg },
+    process.env.SECRET_KEY,
+    { expiresIn: process.env.ACCESS_EXPIRED })
+  const refreshToken = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY,
+    { expiresIn: process.env.REFRESH_EXPIRED })
   // await userBasic.update({ refreshToken }, { where: { userId } })
-  const refreshTokenIndex = await userBasic.findOne({ attributes: ["id"], where: { refreshToken } })
   res.status(200).json({ success: true, accessToken, refreshToken })
 }
-
 // About follow
 // TODO: FollowId가 db 정보에 있는 것인지 검토해야하나?
 async function follow(req, res) {
@@ -80,7 +86,6 @@ async function unfollow(req, res) {
 }
 
 // About profileImg
-
 // multer set: request로 들어온 파일을 저장할 위치, 파일의 규격 지정.
 const s3 = new aws.S3()
 const upload = multer({
@@ -177,7 +182,7 @@ async function applyProfileImg(req, res) {
   console.log(req.file)
   console.log(req.file.location)
   const profileImg = req.file.location
-  await userInfo.create({ user_Id, profileImg })
+  await userInfo.update({ profileImg }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
 
@@ -190,7 +195,7 @@ async function updateProfileImg(req, res) {
 
 async function deleteProfileImg(req, res) {
   const { user_Id } = req.params
-  await userInfo.destroy({ where: { user_Id } })
+  await userInfo.update({ profileImg: process.env.DEFAULT_PROFILEIMG }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
 
