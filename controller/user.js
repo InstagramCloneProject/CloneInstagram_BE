@@ -125,14 +125,29 @@ async function showMyPage(req, res) {
   const { user_Id } = req.params //유저 받기
   const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
 
-  const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //
-
+  const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //나를 팔로우 한 수
   console.log(follower.length)
+  const following = await userFollow.findAll({ where: { user_Id } }) // 내가 팔로우 한 수
+  console.log(following.length)
+
+  // const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //
+
+  const user = await userBasic.findOne({
+    where: {
+      id: user_Id,
+    },
+    attributes: ["userId", "nickName"],
+    include: {
+      model: userInfo,
+      as: "userInfos",
+      attributes: ["profileImg"],
+    },
+  })
 
   const feeds = await feed.findAll({
     where: { user_Id },
     order: [["createdAt", "DESC"]],
-    attributes: ["id", "feedImg"],
+    attributes: ["feedImg"],
     include: [
       {
         model: comment,
@@ -144,55 +159,43 @@ async function showMyPage(req, res) {
         as: "feedLikes",
         attributes: ["id"],
       },
-      {
-        model: userBasic,
-        as: "user",
-        attributes: ["userId", "nickName"],
-        include: [
-          {
-            model: userInfo,
-            as: "userInfos",
-            attributes: ["profileImg"],
-          },
-          {
-            model: userFollow,
-            as: "userFollows", //내가 팔로우 한 사람 : 팔로잉
-          },
-        ],
-      },
     ],
   })
-  console.log("피드 개수: " + feeds.length)
-  feeds.map((value) => {
-    console.log("피드 이미지 :" + value.feedImg)
-    console.log("댓글 수 :" + value.comments.length)
-    console.log("좋아요 수 :" + value.feedLikes.length)
-    console.log("유저 아이디 :" + value.user.userId)
-    console.log("유저 닉네임 :" + value.user.nickName)
-    console.log("유저 프로필 :" + value.user.userInfos[0].profileImg)
-    console.log("내가 팔로우 한 수: " + value.user.userFollows.length)
-    console.log("내가 팔로잉 한 수: " + follower.length)
-  })
+  // console.log("피드 개수: " + feeds.length)
+  // feeds.map((value) => {
+  //   console.log("피드 이미지 :" + value.feedImg)
+  //   console.log("댓글 수 :" + value.comments.length)
+  //   console.log("좋아요 수 :" + value.feedLikes.length)
+  //   console.log("유저 아이디 :" + value.user.userId)
+  //   console.log("유저 닉네임 :" + value.user.nickName)
+  //   console.log("유저 프로필 :" + value.user.userInfos[0].profileImg)
+
+  //   console.log("내가 팔로잉 한 수: " + follower.length)
+  // })
   //피드 이미지, 피드 개수
   //댓글 개수
   //유저 닉네임, 유저 아이디, 유저 프로필 사진
   //유저 팔로워 , 팔로잉 수
+
   res.json({
+    user,
+    feedCount: {
+      count: feeds.length,
+    },
+    follow: {
+      follower: follower.length,
+      following: following.length,
+    },
     feeds: feeds.map((value) => {
       return {
-        feedCount: feeds.length,
         feedImage: value.feedImg,
         feedLikesCount: value.feedLikes.length,
         comment: value.comments.length,
-        userId: value.user.userId,
-        nickname: value.user.nickName,
-        ProfileImg: value.user.userInfos[0].profileImg,
-        followCount: value.user.userFollows.length,
-        followingCount: follower.length,
       }
     }),
   })
 }
+
 async function applyProfileImg(req, res) {
   // #swagger.description = "여기는 프로필 이미지를 추가 하는 곳 입니다."
   // #swagger.tags = ["User"]
