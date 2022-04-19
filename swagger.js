@@ -7,6 +7,28 @@ const doc = {
   },
   host: "localhost:3000",
   schemes: ["http"],
+  tags: [
+    {
+      name: 'User',
+      description: '회원관리 API',
+      summary: '회원관리 API',
+    },
+    {
+      name: 'Feed',
+      description: '게시글관련 API',
+      summary: '게시글관련 API',
+    },
+    {
+      name: 'Comment',
+      description: '댓글관련 API',
+      summary: '댓글관련 API',
+    },
+    {
+      name: 'Recomment',
+      description: '대댓글관련 API',
+      summary: '대댓글관련 API',
+    },
+  ],
 };
 
 const outputFile = "./swagger-output.json";
