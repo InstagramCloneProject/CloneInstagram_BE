@@ -13,7 +13,6 @@
 
 ### Frontend(React)
 -김혜리
-
 -박민우
 ### Backend(Node.js)
 - 신동영
