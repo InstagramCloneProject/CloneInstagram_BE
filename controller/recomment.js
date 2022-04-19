@@ -1,4 +1,4 @@
-const { recomment } = require('../models/index')
+const { recomment, recommentLike } = require('../models/index')
 
 async function applyRecomment(req, res) {
 	const { content, comment_Id } = req.body
@@ -29,10 +29,9 @@ async function deleteRecomment(req, res) {
 
 async function likeRecomment(req, res) {
 	const { recomment_Id } = req.params
-	const { likeId } = req.body
-	const { id } = res.locals
+	const { id, userId } = res.locals
 
-	await recommentLike.create({ recomment_Id, likeId, user_Id: id })
+	await recommentLike.create({ recomment_Id, likeId: userId, user_Id: id })
 
 	res.json({ success: true })
 }
