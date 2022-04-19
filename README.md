@@ -14,7 +14,7 @@
 ### Frontend(React)
 -김혜리
 -박민우
-### #339933 Backend(Node.js)
+### Backend(Node.js)
 - 신동영
 - 유현준 - https://velog.io/@kr4460
 - 김영우
