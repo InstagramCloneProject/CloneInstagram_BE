@@ -28,7 +28,6 @@ module.exports = async (req, res, next) => {
             return
         }
         const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
-        console.log(authedToken)
         const user = await userBasic.findOne({ where: { userId: authedToken.userId } })
         res.locals.id = user.id
         res.locals.userId = user.userId
