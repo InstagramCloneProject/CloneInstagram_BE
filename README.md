@@ -12,13 +12,12 @@
 ---
 
 ### Frontend(React)
-
-- 신동영
-- 유현준
-- 김영우
-
+-김혜리
+-박민우
 ### Backend(Node.js)
-
+- 신동영
+- 유현준 - https://velog.io/@kr4460/22.04.07-%ED%95%AD%ED%95%B499-6%EA%B8%B0-5%EC%A3%BC-6%EC%9D%BC%EC%B0%A8-TIL
+- 김영우
 - ***
 
 ### 개발기간
