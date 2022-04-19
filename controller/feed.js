@@ -9,6 +9,9 @@ const { Op } = require("sequelize")
 
 //  전체 피드 조회
 async function showFeed(req, res) {
+  // #swagger.description = "여기는 피드를 조회 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드조회"
   const { id } = res.locals
   const followUsersArray = await userFollow
     .findAll({
@@ -105,6 +108,9 @@ async function showFeed(req, res) {
 }
 // 상세 페이지
 async function showDetailFeed(req, res) {
+  // #swagger.description = "여기는 피드를 상세조회 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드상세조회"
   const { feed_Id } = req.params
   const Feed = await feed.findAll({
     where: { id: feed_Id },
@@ -162,6 +168,9 @@ const upload = multer({
 
 //  피드 작성
 async function applyFeed(req, res) {
+  // #swagger.description = "여기는 피드를 작성 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드작성"
   const { content } = req.body
   //로컬로 변경해야함
   const { id } = res.locals
@@ -177,6 +186,9 @@ async function applyFeed(req, res) {
 
 // 피드 수정
 async function updateFeed(req, res) {
+  // #swagger.description = "여기는 피드를 수정 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드수정"
   const { id } = res.locals //로그인 한 유저 정보
   const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "수정 권한이 없습니다." }) //없으면 수정 불가
@@ -193,6 +205,9 @@ async function updateFeed(req, res) {
 }
 
 async function deletFeed(req, res) {
+  // #swagger.description = "여기는 피드를 삭제 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드삭제"
   const { id } = res.locals //로그인 한 유저 정보
   const { feed_Id } = req.params
   const { image } = req.body
@@ -219,6 +234,9 @@ async function deletFeed(req, res) {
 }
 
 async function likeFeed(req, res) {
+  // #swagger.description = "여기는 피드좋아요를 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드좋아요"
   const { feed_Id } = req.params //어떤 피드에 좋아요
   const { id } = res.locals
   try {
@@ -232,6 +250,9 @@ async function likeFeed(req, res) {
 }
 
 async function unlikeFeed(req, res) {
+  // #swagger.description = "여기는 피드좋아요 취소를 하는 곳 입니다."
+  // #swagger.tags = ["Feed"]
+  // #swagger.summary = "피드좋아요 취소"
   const { feed_Id } = req.params
   const { userId } = res.locals
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } }) //피드 체크

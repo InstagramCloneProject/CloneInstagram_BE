@@ -297,7 +297,11 @@
     },
     "/api/feed/": {
       "get": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드조회",
+        "description": "여기는 피드를 조회 하는 곳 입니다.",
         "parameters": [
           {
             "name": "authorization",
@@ -320,7 +324,11 @@
         }
       },
       "post": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드작성",
+        "description": "여기는 피드를 작성 하는 곳 입니다.",
         "parameters": [
           {
             "name": "authorization",
@@ -360,7 +368,11 @@
     },
     "/api/feed/{feed_Id}": {
       "patch": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드수정",
+        "description": "여기는 피드를 수정 하는 곳 입니다.",
         "parameters": [
           {
             "name": "feed_Id",
@@ -404,7 +416,11 @@
         }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드삭제",
+        "description": "여기는 피드를 삭제 하는 곳 입니다.",
         "parameters": [
           {
             "name": "feed_Id",
@@ -448,7 +464,11 @@
         }
       },
       "get": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드상세조회",
+        "description": "여기는 피드를 상세조회 하는 곳 입니다.",
         "parameters": [
           {
             "name": "feed_Id",
@@ -479,7 +499,11 @@
     },
     "/api/feed/{feed_Id}/likes": {
       "post": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드좋아요",
+        "description": "여기는 피드좋아요를 하는 곳 입니다.",
         "parameters": [
           {
             "name": "feed_Id",
@@ -513,7 +537,11 @@
     },
     "/api/feed/{feed_Id}/unlikes": {
       "delete": {
-        "description": "",
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드좋아요 취소",
+        "description": "여기는 피드좋아요 취소를 하는 곳 입니다.",
         "parameters": [
           {
             "name": "feed_Id",
@@ -547,7 +575,11 @@
     },
     "/api/comment/": {
       "post": {
-        "description": "",
+        "tags": [
+          "Comment"
+        ],
+        "summary": "댓글작성",
+        "description": "여기는 댓글을 작성하는 곳 입니다.",
         "parameters": [
           {
             "name": "authorization",
@@ -587,7 +619,11 @@
     },
     "/api/comment/{comment_Id}": {
       "patch": {
-        "description": "",
+        "tags": [
+          "Comment"
+        ],
+        "summary": "댓글수정",
+        "description": "여기는 댓글을 수정 하는 곳 입니다.",
         "parameters": [
           {
             "name": "comment_Id",
@@ -628,7 +664,11 @@
         }
       },
       "delete": {
-        "description": "",
+        "tags": [
+          "Comment"
+        ],
+        "summary": "댓글삭제",
+        "description": "여기는 댓글을 삭제 하는 곳 입니다.",
         "parameters": [
           {
             "name": "comment_Id",
@@ -659,7 +699,11 @@
     },
     "/api/comment/{comment_Id}/likes": {
       "post": {
-        "description": "",
+        "tags": [
+          "Comment"
+        ],
+        "summary": "댓글좋아요",
+        "description": "여기는 댓글좋아요 하는 곳 입니다.",
         "parameters": [
           {
             "name": "comment_Id",
@@ -702,7 +746,11 @@
     },
     "/api/comment/{comment_Id}/unlikes": {
       "delete": {
-        "description": "",
+        "tags": [
+          "Comment"
+        ],
+        "summary": "댓글좋아요 취소",
+        "description": "여기는 댓글좋아요 취소 하는 곳 입니다.",
         "parameters": [
           {
             "name": "comment_Id",
@@ -862,18 +910,6 @@
             "name": "reauthorization",
             "in": "header",
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "likeId": {
-                  "example": "any"
-                }
-              }
-            }
           }
         ],
         "responses": {
