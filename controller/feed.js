@@ -114,35 +114,72 @@ async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
   const Feed = await feed.findAll({
     where: { id: feed_Id },
+    attributes: {exclude: ["user_Id"]},
     include: [
+      {
+        model: feedLike,
+        as: "feedLikes",
+        attributes: ["likeId"]
+      },
       {
         model: userBasic,
         as: "user",
-        attributes: ["userId", "nickName"],
+        attributes: ["id", "userId", "nickName"],
+        include: [
+          {
+            model: userInfo,
+            as: "userInfos",
+            attributes: ["profileImg"]
+          }
+        ]
       },
       {
         model: comment,
         as: "comments",
+        attributes: {exclude: ["feed_Id", "user_Id"]},
         include: [
           {
             model: commentLike,
             as: "commentLikes",
+            attributes: ["likeId"]
+          },
+          {
+            model: userBasic,
+            as: "user",
+            attributes: ["id", "userId", "nickName"],
+            include: [
+              {
+                model: userInfo,
+                as: "userInfos",
+                attributes: ["profileImg"]
+              }
+            ]
           },
           {
             model: recomment,
             as: "recomments",
+            attributes: {exclude: ["comment_Id", "user_Id"]},
             include: [
               {
                 model: recommentLike,
                 as: "recommentLikes",
+                attributes: ["likeId"]
+              },
+              {
+                model: userBasic,
+                as: "user",
+                attributes: ["id", "userId", "nickName"],
+                include: [
+                  {
+                    model: userInfo,
+                    as: "userInfos",
+                    attributes: ["profileImg"]
+                  }
+                ]
               },
             ],
           },
         ],
-      },
-      {
-        model: feedLike,
-        as: "feedLikes",
       },
     ],
   })
@@ -211,7 +248,8 @@ async function deletFeed(req, res) {
   const { id } = res.locals //로그인 한 유저 정보
   const { feed_Id } = req.params
   const { image } = req.body
-  const findImg = image.split(".com")[1].split("feedImage")[1].split("/")[1]
+  const findImg = image.split("/feedImage/")[1]
+  console.log(findImg)
   const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "삭제 권한이 없습니다." }) //없으면 삭제 불가
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })

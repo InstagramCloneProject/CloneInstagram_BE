@@ -41,14 +41,14 @@ module.exports = function(sequelize, DataTypes) {
         ]
       },
       {
-        name: "user_Id",
+        name: "comment_ibfk_1",
         using: "BTREE",
         fields: [
           { name: "user_Id" },
         ]
       },
       {
-        name: "feed_Id",
+        name: "comment_ibfk_2",
         using: "BTREE",
         fields: [
           { name: "feed_Id" },
