@@ -108,10 +108,8 @@ async function showMyPage(req, res) {
 
   const { user_Id } = req.params //유저 받기
   const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
-
   const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //나를 팔로우 한 수
   const following = await userFollow.findAll({ where: { user_Id } }) // 내가 팔로우 한 수
-  // const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //
 
   const user = await userBasic.findOne({
     where: {
@@ -128,7 +126,7 @@ async function showMyPage(req, res) {
   const feeds = await feed.findAll({
     where: { user_Id },
     order: [["createdAt", "DESC"]],
-    attributes: ["feedImg"],
+    attributes: ["id", "feedImg"],
     include: [
       {
         model: comment,
@@ -153,6 +151,7 @@ async function showMyPage(req, res) {
     },
     feeds: feeds.map((value) => {
       return {
+        feedId: value.id,
         feedImage: value.feedImg,
         feedLikesCount: value.feedLikes.length,
         comment: value.comments.length,

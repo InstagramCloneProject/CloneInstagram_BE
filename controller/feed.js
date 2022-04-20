@@ -32,7 +32,6 @@ async function showFeed(req, res) {
   const showFeedUser_Id = showFeedUserIdArray.map((value) => {
     return value.dataValues.id
   })
-  console.log(showFeedUser_Id)
 
   const feedOrigin = await userBasic
     .findAll({
