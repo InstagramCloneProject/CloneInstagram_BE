@@ -268,8 +268,10 @@ async function deletFeed(req, res) {
   const { feed_Id } = req.params
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." }) //안해주면 피드가 없어서 삭제는 안되지만 성공으로 들어감 이유는?
-  const { image } = req.body //삭제할 이미지 url
-  console.log(image)
+  // const { image } = req.body //삭제할 이미지 url
+
+  const image = checkFeedId.feedImg
+
   const findImg = image.split("/feedImage/")[1]
   try {
     await feed.destroy({ where: { id: feed_Id } }) //피드삭제

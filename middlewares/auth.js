@@ -28,7 +28,6 @@ module.exports = async (req, res, next) => {
             return
         }
         const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
-        console.log(authedToken)
 	const userId = authedToken.userId
         const user_Id = authedToken.user_Id
 	const nickName = authedToken.nickName
