@@ -231,11 +231,9 @@ async function likeFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드좋아요"
   const { feed_Id } = req.params //어떤 피드에 좋아요
-  const { id } = res.locals //로그인 한 유저
+  const { id, userId } = res.locals //로그인 한 유저
   try {
-    const userlike = await userBasic.findOne({ where: { id } })
-    const likeId = userlike.userId //좋아요 누른 유저 찾기
-    await feedLike.create({ feed_Id, likeId, user_Id: id }) //좋아요 누른 피드 ,유저 추가
+    await feedLike.create({ feed_Id, likeId: userId, user_Id: id }) //좋아요 누른 피드 ,유저 추가
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
