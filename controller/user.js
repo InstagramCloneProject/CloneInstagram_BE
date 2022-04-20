@@ -201,8 +201,12 @@ async function updateProfileImg(req, res) {
     },
     attributes: ["profileImg"],
   }) //유저의 수정 전 프로필 사진
-  const findImg = userProfile.profileImg.split("/profileImg/")[1]
-  s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
+
+  if (!userProfile.profileImg === process.env.DEFAULT_PROFILEIMG) {
+    //기본 이미지는 삭제 못하게
+    const findImg = userProfile.profileImg.split("/profileImg/")[1]
+    s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
+  }
   const updateProfileImg = req.file.location //수정 할 이미지
   await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
   res.status(200).json({ success: true })
@@ -220,8 +224,13 @@ async function deleteProfileImg(req, res) {
     },
     attributes: ["profileImg"],
   })
-  const findImg = userProfile.profileImg.split("/profileImg/")[1]
-  s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
+
+  if (!userProfile.profileImg === process.env.DEFAULT_PROFILEIMG) {
+    //기본 이미지는 삭제 못하게
+    const findImg = userProfile.profileImg.split("/profileImg/")[1]
+    s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
+  }
+
   await userInfo.update({ profileImg: process.env.DEFAULT_PROFILEIMG }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
