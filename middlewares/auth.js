@@ -66,6 +66,7 @@ module.exports = async (req, res, next) => {
                 })
             }
             else {
+                console.log(err.name)
                 res.status(401).json({
                     result: false,
                     message: '다시 로그인하셔야 합니다',
