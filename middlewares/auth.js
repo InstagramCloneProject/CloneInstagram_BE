@@ -29,10 +29,11 @@ module.exports = async (req, res, next) => {
         }
         const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
         const user = await userBasic.findOne({ where: { userId: authedToken.userId } })
+        const userInfo = await userInfo.findOne({ where: { user_Id: authedToken.user_Id } })
         res.locals.id = user.id
         res.locals.userId = user.userId
         res.locals.nickName = user.nickName
-        res.locals.profileImg = user.profileImg
+        res.locals.profileImg = userInfo.profileImg
         next()
     } catch (err) {
         try {
@@ -66,7 +67,8 @@ module.exports = async (req, res, next) => {
                 res.status(401).json({
                     result: false,
                     message: '다시 로그인하셔야 합니다',
-                    reason: 'access토큰에 문제가 있네요(기한만료가 아닌 에러)'
+                    reason: 'access토큰에 문제가 있네요(기한만료가 아닌 에러)',
+                    err
                 })
             }
         }
