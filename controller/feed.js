@@ -24,9 +24,11 @@ async function showFeed(req, res) {
   const userId = followUsersArray.map((value) => {
     return value.dataValues.followId
   })
+
   const userIdArray = await userBasic.findAll({
     where: { userId: { [Op.or]: userId } },
   })
+
   const user_Id = userIdArray.map((value) => {
     return value.dataValues.id
   })
@@ -56,7 +58,7 @@ async function showFeed(req, res) {
                   model: userBasic,
                   as: "user",
                   attributes: ["nickname"],
-                  order: [["createdAt", "desc"]],
+                  order: [["createdAt", "desc"]]
                 },
               ],
             },
@@ -249,7 +251,6 @@ async function deletFeed(req, res) {
   const { feed_Id } = req.params
   const { image } = req.body
   const findImg = image.split("/feedImage/")[1]
-  console.log(findImg)
   const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "삭제 권한이 없습니다." }) //없으면 삭제 불가
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
