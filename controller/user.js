@@ -214,6 +214,14 @@ async function deleteProfileImg(req, res) {
   // #swagger.summary = "프로필 이미지 삭제"
 
   const { user_Id } = req.params
+  const userProfile = await userInfo.findOne({
+    where: {
+      user_Id,
+    },
+    attributes: ["profileImg"],
+  })
+  const findImg = userProfile.profileImg.split("/profileImg/")[1]
+  s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
   await userInfo.update({ profileImg: process.env.DEFAULT_PROFILEIMG }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
