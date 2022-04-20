@@ -28,12 +28,14 @@ module.exports = async (req, res, next) => {
             return
         }
         const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
-        const user = await userBasic.findOne({ where: { userId: authedToken.userId } })
-        const userInfo = await userInfo.findOne({ where: { user_Id: authedToken.user_Id } })
+        const userId = authedToken.userId
+        const user_Id = authedToken.user_Id
+        const user = await userBasic.findOne({ where: { userId } }).catch((err) => { console.log(err) })
+        const profileImgArray = await userInfo.findOne({ where: { user_Id } })
         res.locals.id = user.id
         res.locals.userId = user.userId
         res.locals.nickName = user.nickName
-        res.locals.profileImg = userInfo.profileImg
+        res.locals.profileImg = profileImgArray.profileImg
         next()
     } catch (err) {
         try {
