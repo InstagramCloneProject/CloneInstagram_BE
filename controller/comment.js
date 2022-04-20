@@ -1,4 +1,4 @@
-const { comment, commentLike } = require("../models/index")
+const { comment, commentLike, userBasic } = require("../models/index")
 
 async function applyComment(req, res) {
   // #swagger.description = "여기는 댓글을 작성하는 곳 입니다."
@@ -41,9 +41,9 @@ async function likeComment(req, res) {
   // #swagger.tags = ["Comment"]
   // #swagger.summary = "댓글좋아요"
   const { comment_Id } = req.params
-  const { likeId } = req.body
-  const { id } = res.locals
-  await commentLike.create({ comment_Id, likeId, user_Id: id })
+  const { id, userId } = res.locals
+
+  await commentLike.create({ comment_Id, likeId: userId, user_Id: id })
   res.json({ success: true })
 }
 

@@ -13,37 +13,51 @@ async function showFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드조회"
 
-  const { id } = res.locals
+  const { id, userId } = res.locals
   const followUsersArray = await userFollow
     .findAll({
       where: { user_Id: id },
     })
-    .then((value) => {
-      return value
-    })
-  const userId = followUsersArray.map((value) => {
+  let followId = followUsersArray.map((value) => {
     return value.dataValues.followId
   })
 
-  const userIdArray = await userBasic.findAll({
-    where: { userId: { [Op.or]: userId } },
+  followId.push(userId)
+
+
+  const showFeedUserIdArray = await userBasic.findAll({
+    where: { userId: { [Op.or]: followId } },
   })
 
-  const user_Id = userIdArray.map((value) => {
+  const showFeedUser_Id = showFeedUserIdArray.map((value) => {
     return value.dataValues.id
   })
+  console.log(showFeedUser_Id)
+
   const feedOrigin = await userBasic
     .findAll({
       attributes: ["nickName"],
-      where: { id: { [Op.or]: user_Id } },
+      where: { id: { [Op.or]: showFeedUser_Id } },
       include: [
         {
           model: feed,
           as: "feeds",
-          where: { user_Id: { [Op.or]: user_Id } },
+          attributes: { exclude: ["user_Id"] },
+          where: { user_Id: { [Op.or]: showFeedUser_Id } },
           order: [["createdAt", "desc"]],
           limit: 3,
           include: [
+            {
+              model: userBasic,
+              as: "user",
+              attributes: ["id", "userId", "nickName"],
+              include: [{
+                model: userInfo,
+                as: "userInfos",
+                attributes: ["profileImg"]
+              }]
+            },
+
             {
               model: feedLike,
               as: "feedLikes",
@@ -52,22 +66,24 @@ async function showFeed(req, res) {
             {
               model: comment,
               as: "comments",
-
+              attributes: { exclude: ["user_Id", "feed_Id"] },
               include: [
                 {
                   model: userBasic,
                   as: "user",
-                  attributes: ["nickname"],
+                  attributes: ["id", "userId", "nickname"],
                   order: [["createdAt", "desc"]],
+                  include: [{
+                    model: userInfo,
+                    as: "userInfos",
+                    attributes: ["profileImg"]
+                  }]
                 },
               ],
             },
           ],
         },
       ],
-    })
-    .then((value) => {
-      return value
     })
 
   let feedList = []
@@ -76,10 +92,8 @@ async function showFeed(req, res) {
   })
   for (let i = 0; i < Feed.length; i++) {
     let realFeed = Feed[i].feeds
-    let userNick = Feed[i].nickName
     for (let z = 0; z < realFeed.length; z++) {
       let oneFeed = realFeed[z]
-      oneFeed.dataValues.nickName = userNick
       feedList.push(oneFeed)
     }
   }
@@ -89,9 +103,11 @@ async function showFeed(req, res) {
     attributes: ["followId"],
     where: { user_Id: id },
   })
-  const followUserList = followerUserOrigin.map((value) => {
+  let followUserList = followerUserOrigin.map((value) => {
     return value.dataValues.followId
   })
+
+  followUserList.push(userId)
 
   const unfollowList = await userBasic.findAll({
     where: { userId: { [Op.notIn]: followUserList } },
@@ -105,7 +121,7 @@ async function showFeed(req, res) {
     ],
   })
 
-  res.status(200).json({ success: true, feed: feedList, unfollowList })
+  res.status(200).json({ success: true, feedList, unfollowList })
 }
 
 // 상세 페이지
@@ -116,35 +132,72 @@ async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
   const Feed = await feed.findAll({
     where: { id: feed_Id },
+    attributes: {exclude: ["user_Id"]},
     include: [
+      {
+        model: feedLike,
+        as: "feedLikes",
+        attributes: ["likeId"]
+      },
       {
         model: userBasic,
         as: "user",
-        attributes: ["userId", "nickName"],
+        attributes: ["id", "userId", "nickName"],
+        include: [
+          {
+            model: userInfo,
+            as: "userInfos",
+            attributes: ["profileImg"]
+          }
+        ]
       },
       {
         model: comment,
         as: "comments",
+        attributes: {exclude: ["feed_Id", "user_Id"]},
         include: [
           {
             model: commentLike,
             as: "commentLikes",
+            attributes: ["likeId"]
+          },
+          {
+            model: userBasic,
+            as: "user",
+            attributes: ["id", "userId", "nickName"],
+            include: [
+              {
+                model: userInfo,
+                as: "userInfos",
+                attributes: ["profileImg"]
+              }
+            ]
           },
           {
             model: recomment,
             as: "recomments",
+            attributes: {exclude: ["comment_Id", "user_Id"]},
             include: [
               {
                 model: recommentLike,
                 as: "recommentLikes",
+                attributes: ["likeId"]
+              },
+              {
+                model: userBasic,
+                as: "user",
+                attributes: ["id", "userId", "nickName"],
+                include: [
+                  {
+                    model: userInfo,
+                    as: "userInfos",
+                    attributes: ["profileImg"]
+                  }
+                ]
               },
             ],
           },
         ],
-      },
-      {
-        model: feedLike,
-        as: "feedLikes",
       },
     ],
   })
