@@ -35,7 +35,6 @@ async function showFeed(req, res) {
 
   const feedOrigin = await userBasic
     .findAll({
-      attributes: ["nickName"],
       where: { id: { [Op.or]: showFeedUser_Id } },
       include: [
         {
@@ -120,7 +119,7 @@ async function showFeed(req, res) {
     ],
   })
 
-  res.status(200).json({ success: true, feedList, unfollowList })
+  res.status(200).json({ success: true, Feed: feedList, unfollowList })
 }
 
 // 상세 페이지
@@ -131,7 +130,7 @@ async function showDetailFeed(req, res) {
   const { feed_Id } = req.params
   const Feed = await feed.findAll({
     where: { id: feed_Id },
-    attributes: {exclude: ["user_Id"]},
+    attributes: { exclude: ["user_Id"] },
     include: [
       {
         model: feedLike,
@@ -153,7 +152,7 @@ async function showDetailFeed(req, res) {
       {
         model: comment,
         as: "comments",
-        attributes: {exclude: ["feed_Id", "user_Id"]},
+        attributes: { exclude: ["feed_Id", "user_Id"] },
         include: [
           {
             model: commentLike,
@@ -175,7 +174,7 @@ async function showDetailFeed(req, res) {
           {
             model: recomment,
             as: "recomments",
-            attributes: {exclude: ["comment_Id", "user_Id"]},
+            attributes: { exclude: ["comment_Id", "user_Id"] },
             include: [
               {
                 model: recommentLike,
