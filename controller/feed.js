@@ -13,7 +13,9 @@ async function showFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드조회"
 
+  
   const { id, userId } = res.locals
+  console.log(id,userId)
   const followUsersArray = await userFollow
     .findAll({
       where: { user_Id: id },
@@ -119,7 +121,7 @@ async function showFeed(req, res) {
     ],
   })
 
-  res.status(200).json({ success: true, Feed: feedList, unfollowList })
+  res.status(200).json({ success: true, feedList, unfollowList })
 }
 
 // 상세 페이지
@@ -267,6 +269,7 @@ async function deletFeed(req, res) {
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." }) //안해주면 피드가 없어서 삭제는 안되지만 성공으로 들어감 이유는?
   const { image } = req.body //삭제할 이미지 url
+  console.log(image)
   const findImg = image.split("/feedImage/")[1]
   try {
     await feed.destroy({ where: { id: feed_Id } }) //피드삭제

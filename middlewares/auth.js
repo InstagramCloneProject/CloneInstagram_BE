@@ -28,11 +28,15 @@ module.exports = async (req, res, next) => {
             return
         }
         const authedToken = jwt.verify(tokenValue, process.env.SECRET_KEY)
-        const userId = authedToken.userId
+        console.log(authedToken)
+	const userId = authedToken.userId
         const user_Id = authedToken.user_Id
-        const user = await userBasic.findOne({ where: { userId } }).catch((err) => { console.log(err) })
+	const nickName = authedToken.nickName
+	    
+        const user = await userBasic.findOne({ where: { id: user_Id, userId, nickName } }).catch((err) => { console.log(err) })
         const profileImgArray = await userInfo.findOne({ where: { user_Id } })
-        res.locals.id = user.id
+        
+	res.locals.id = user.id
         res.locals.userId = user.userId
         res.locals.nickName = user.nickName
         res.locals.profileImg = profileImgArray.profileImg
@@ -66,7 +70,7 @@ module.exports = async (req, res, next) => {
                 })
             }
             else {
-                console.log(err.name)
+                console.log('hihi')
                 res.status(401).json({
                     result: false,
                     message: '다시 로그인하셔야 합니다',

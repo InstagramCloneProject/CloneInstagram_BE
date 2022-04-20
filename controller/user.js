@@ -177,18 +177,6 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 10mb로 용량 제한
 })
 
-async function applyProfileImg(req, res) {
-  // #swagger.description = "여기는 프로필 이미지를 추가 하는 곳 입니다."
-  // #swagger.tags = ["User"]
-  // #swagger.summary = "프로필 이미지 추가"
-
-  const { user_Id } = req.params
-  if (!req.file) return res.status(400).json({ errormsg: "이미지를 넣어주세요." })
-  const profileImg = req.file.location
-  await userInfo.update({ profileImg }, { where: { user_Id } })
-  res.status(200).json({ success: true })
-}
-
 async function updateProfileImg(req, res) {
   // #swagger.description = "여기는 프로필 이미지를 수정 하는 곳 입니다."
   // #swagger.tags = ["User"]
@@ -206,6 +194,8 @@ async function updateProfileImg(req, res) {
     const findImg = userProfile.profileImg.split("/profileImg/")[1]
     s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
   }
+console.log(req)  
+console.log(req.file)
   const updateProfileImg = req.file.location //수정 할 이미지
   await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
   res.status(200).json({ success: true })
@@ -240,7 +230,6 @@ module.exports = {
   login,
   unfollow,
   upload,
-  applyProfileImg,
   updateProfileImg,
   deleteProfileImg,
   showMyPage,
