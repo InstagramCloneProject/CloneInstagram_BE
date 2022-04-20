@@ -250,9 +250,8 @@ async function updateFeed(req, res) {
   const { feed_Id } = req.params
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } }) //피드가 있는지 체크
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." })
-  // TODO:  
   try {
-    await feed.update({ content, feedImg: `feedImg/${req.file.location}` }, { where: { id: feed_Id } }) //피드 수정
+    await feed.update({ content }, { where: { id: feed_Id } }) //피드 수정
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
@@ -264,24 +263,16 @@ async function deletFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드삭제"
   const { id } = res.locals //로그인 한 유저 정보
-  const { feed_Id } = req.params
-  const { image } = req.body
-  const findImg = image.split("/feedImage/")[1]
   const userCheck = await feed.findOne({ where: { user_Id: id } }) //피드에서 해당 유저 찾기
   if (!userCheck) return res.status(400).json({ messeage: "삭제 권한이 없습니다." }) //없으면 삭제 불가
+  const { feed_Id } = req.params
   const checkFeedId = await feed.findOne({ where: { id: feed_Id } })
   if (!checkFeedId) return res.status(400).json({ messeage: "해당 피드가 존재하지 않습니다." }) //안해주면 피드가 없어서 삭제는 안되지만 성공으로 들어감 이유는?
-
-  const params = {
-    Bucket: "cloneproject-instagram",
-    Key: `feedImage/${findImg}`,
-  }
-
+  const { image } = req.body //삭제할 이미지 url
+  const findImg = image.split("/feedImage/")[1]
   try {
     await feed.destroy({ where: { id: feed_Id } }) //피드삭제
-    s3.deleteObject(params, function (err, data) {
-      console.log(err)
-    })
+    s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `feedImage/${findImg}` }, (err) => console.log(err))
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })
@@ -293,11 +284,9 @@ async function likeFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드좋아요"
   const { feed_Id } = req.params //어떤 피드에 좋아요
-  const { id } = res.locals
+  const { id, userId } = res.locals //로그인 한 유저
   try {
-    const userlike = await userBasic.findOne({ where: { id } })
-    const likeId = userlike.userId //좋아요 누른 유저 찾기
-    await feedLike.create({ feed_Id, likeId, user_Id: id }) //좋아요 누른 피드 ,유저 추가
+    await feedLike.create({ feed_Id, likeId: userId, user_Id: id }) //좋아요 누른 피드 ,유저 추가
     res.status(200).json({ success: true })
   } catch (err) {
     res.status(400).json({ success: false })

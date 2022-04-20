@@ -195,7 +195,15 @@ async function updateProfileImg(req, res) {
   // #swagger.tags = ["User"]
   // #swagger.summary = "프로필 이미지 수정"
   const { user_Id } = req.params
-  const updateProfileImg = req.file.location
+  const userProfile = await userInfo.findOne({
+    where: {
+      user_Id,
+    },
+    attributes: ["profileImg"],
+  }) //유저의 수정 전 프로필 사진
+  const findImg = userProfile.profileImg.split("/profileImg/")[1]
+  s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
+  const updateProfileImg = req.file.location //수정 할 이미지
   await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
@@ -206,6 +214,14 @@ async function deleteProfileImg(req, res) {
   // #swagger.summary = "프로필 이미지 삭제"
 
   const { user_Id } = req.params
+  const userProfile = await userInfo.findOne({
+    where: {
+      user_Id,
+    },
+    attributes: ["profileImg"],
+  })
+  const findImg = userProfile.profileImg.split("/profileImg/")[1]
+  s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
   await userInfo.update({ profileImg: process.env.DEFAULT_PROFILEIMG }, { where: { user_Id } })
   res.status(200).json({ success: true })
 }
