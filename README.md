@@ -27,39 +27,31 @@
 
 2022년 04월 15일 ~2022년 04월 21일
 
-## :earth_asia: Website
-
----
-
 ### :tv: Youtube
 
-## :balloon: Notion Link
-https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
+## :balloon: Notion Link https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
 
 ---
-
-링크
-
-## :speech_balloon: \***\*Project Collaboration Process\*\***
-
----
-
-- \***\*Front-end 기술 스택 및 개발 환경\*\***
-
 
 - \***\*Back-end 기술 스택 및 개발 환경\*\***
+
 1) **서버**
-node.js(express.js)
+: node.js(express.js)
+
 2) **DB**
-MySQL(sequelize)
+: MySQL(sequelize)
+
 3) **Deploy**
-AWS EC2
+: AWS EC2
+
 4) **Auth**
-JWT(ACCESS/REFRESH)
+: JWT(ACCESS/REFRESH)
+
 5) **이미지 서버**
-S3
+: S3
+
 6) **프로토콜**
-https(letsencrypt)
+: https(letsencrypt)
 
 ---
 
