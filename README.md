@@ -22,11 +22,15 @@
  ***
 
 ### 개발기간
+
 2022년 04월 15일 ~2022년 04월 21일
+
 ---
 ### :tv: Youtube
+
 ---
-## :balloon: Notion Link
+
+### :balloon: Notion Link
 https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
 
 ---
@@ -52,9 +56,3 @@ https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
 : https(letsencrypt)
 
 ---
-
-### **API 설계**
-  | 데이터 테이블 | 기능 | METHOD | URL | request | response | 비고 |
-
-- **Digram**
-- **Troubleshooting**
