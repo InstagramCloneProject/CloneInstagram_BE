@@ -1,15 +1,4 @@
-# CloneInstagram_BE
-# :hearts: Instagram clone
-
----
-
-프로젝트 설명!
-
-## :sunglasses: Team
-
-항해99 6기 클론코딩 1조: 인스타그램 클론
-
----
+## 항해99 6기 클론코딩 1조: 인스타그램 클론(BE repo)
 
 ### Frontend(React)
 - 김혜리
