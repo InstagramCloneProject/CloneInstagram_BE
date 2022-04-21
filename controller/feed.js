@@ -13,9 +13,9 @@ async function showFeed(req, res) {
   // #swagger.tags = ["Feed"]
   // #swagger.summary = "피드조회"
 
-  
+
   const { id, userId } = res.locals
-  console.log(id,userId)
+  console.log(id, userId)
   const followUsersArray = await userFollow
     .findAll({
       where: { user_Id: id },
