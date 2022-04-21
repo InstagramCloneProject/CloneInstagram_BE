@@ -1,8 +1,8 @@
 {
   "swagger": "2.0",
   "info": {
-    "title": "짭스타그램",
-    "description": "인스타 클론코딩",
+    "title": "CloneCode",
+    "description": "인스타 클로코딩",
     "version": "1.0.0"
   },
   "host": "hyeonjun.shop",
@@ -29,7 +29,9 @@
       "summary": "대댓글관련 API"
     }
   ],
-  "schemes": ["http"],
+  "schemes": [
+    "https"
+  ],
   "paths": {
     "/": {
       "get": {
@@ -44,7 +46,9 @@
     },
     "/api/user/join": {
       "post": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "회원가입",
         "description": "여기는 회원가입 하는 곳 입니다.",
         "parameters": [
@@ -82,7 +86,9 @@
     },
     "/api/user/login": {
       "post": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "로그인",
         "description": "여기는 로그인 하는 곳 입니다.",
         "parameters": [
@@ -114,7 +120,9 @@
     },
     "/api/user/{user_Id}": {
       "get": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "개인 프로필 페이지 조회",
         "description": "여기는 개인 프로필 페이지를 조회 하는 곳 입니다.",
         "parameters": [
@@ -147,7 +155,9 @@
     },
     "/api/user/{user_Id}/follow": {
       "post": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "팔로우 추가",
         "description": "여기는 팔로우 하는 곳 입니다.",
         "parameters": [
@@ -190,7 +200,9 @@
         }
       },
       "delete": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "팔로우 삭제",
         "description": "여기는 언팔로우 하는 곳 입니다.",
         "parameters": [
@@ -234,42 +246,10 @@
       }
     },
     "/api/user/{user_Id}/profileImg": {
-      "post": {
-        "tags": ["User"],
-        "summary": "프로필 이미지 추가",
-        "description": "여기는 프로필 이미지를 추가 하는 곳 입니다.",
-        "parameters": [
-          {
-            "name": "user_Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "reauthorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      },
       "patch": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "프로필 이미지 수정",
         "description": "여기는 프로필 이미지를 수정 하는 곳 입니다.",
         "parameters": [
@@ -300,7 +280,9 @@
         }
       },
       "delete": {
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "summary": "프로필 이미지 삭제",
         "description": "여기는 프로필 이미지를 삭제 하는 곳 입니다.",
         "parameters": [
@@ -333,7 +315,9 @@
     },
     "/api/feed/": {
       "get": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드조회",
         "description": "여기는 피드를 조회 하는 곳 입니다.!",
         "parameters": [
@@ -358,7 +342,9 @@
         }
       },
       "post": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드작성",
         "description": "여기는 피드를 작성 하는 곳 입니다.",
         "parameters": [
@@ -379,10 +365,7 @@
               "type": "object",
               "properties": {
                 "content": {
-                  "example": "string"
-                },
-                "feedImg": {
-                  "example": "file"
+                  "example": "any"
                 }
               }
             }
@@ -403,7 +386,9 @@
     },
     "/api/feed/{feed_Id}": {
       "patch": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드수정",
         "description": "여기는 피드를 수정 하는 곳 입니다.",
         "parameters": [
@@ -429,56 +414,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "content": {
-                  "example": "string"
-                },
-                "feedImg": {
-                  "example": "file"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      },
-      "delete": {
-        "tags": ["Feed"],
-        "summary": "피드삭제",
-        "description": "여기는 피드를 삭제 하는 곳 입니다.",
-        "parameters": [
-          {
-            "name": "feed_Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "reauthorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "image": {
+                "where": {
                   "example": "any"
                 }
               }
@@ -497,8 +433,46 @@
           }
         }
       },
+      "delete": {
+        "tags": [
+          "Feed"
+        ],
+        "summary": "피드삭제",
+        "description": "여기는 피드를 삭제 하는 곳 입니다.",
+        "parameters": [
+          {
+            "name": "feed_Id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "reauthorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
       "get": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드상세조회",
         "description": "여기는 피드를 상세조회 하는 곳 입니다.",
         "parameters": [
@@ -531,7 +505,9 @@
     },
     "/api/feed/{feed_Id}/likes": {
       "post": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드좋아요",
         "description": "여기는 피드좋아요를 하는 곳 입니다.",
         "parameters": [
@@ -567,7 +543,9 @@
     },
     "/api/feed/{feed_Id}/unlikes": {
       "delete": {
-        "tags": ["Feed"],
+        "tags": [
+          "Feed"
+        ],
         "summary": "피드좋아요 취소",
         "description": "여기는 피드좋아요 취소를 하는 곳 입니다.",
         "parameters": [
@@ -603,7 +581,9 @@
     },
     "/api/comment/": {
       "post": {
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "summary": "댓글작성",
         "description": "여기는 댓글을 작성하는 곳 입니다.",
         "parameters": [
@@ -645,7 +625,9 @@
     },
     "/api/comment/{comment_Id}": {
       "patch": {
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "summary": "댓글수정",
         "description": "여기는 댓글을 수정 하는 곳 입니다.",
         "parameters": [
@@ -688,7 +670,9 @@
         }
       },
       "delete": {
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "summary": "댓글삭제",
         "description": "여기는 댓글을 삭제 하는 곳 입니다.",
         "parameters": [
@@ -721,7 +705,9 @@
     },
     "/api/comment/{comment_Id}/likes": {
       "post": {
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "summary": "댓글좋아요",
         "description": "여기는 댓글좋아요 하는 곳 입니다.",
         "parameters": [
@@ -740,18 +726,6 @@
             "name": "reauthorization",
             "in": "header",
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "likeId": {
-                  "example": "any"
-                }
-              }
-            }
           }
         ],
         "responses": {
@@ -766,7 +740,9 @@
     },
     "/api/comment/{comment_Id}/unlikes": {
       "delete": {
-        "tags": ["Comment"],
+        "tags": [
+          "Comment"
+        ],
         "summary": "댓글좋아요 취소",
         "description": "여기는 댓글좋아요 취소 하는 곳 입니다.",
         "parameters": [
@@ -799,7 +775,9 @@
     },
     "/api/recomment/": {
       "post": {
-        "tags": ["Recomment"],
+        "tags": [
+          "Recomment"
+        ],
         "summary": "대댓글작성",
         "description": "여기는 대댓글을 작성하는 곳 입니다.",
         "parameters": [
@@ -841,7 +819,9 @@
     },
     "/api/recomment/{recomment_Id}": {
       "patch": {
-        "tags": ["Recomment"],
+        "tags": [
+          "Recomment"
+        ],
         "summary": "대댓글수정",
         "description": "여기는 대댓글을 수정하는 곳 입니다.",
         "parameters": [
@@ -884,7 +864,9 @@
         }
       },
       "delete": {
-        "tags": ["Recomment"],
+        "tags": [
+          "Recomment"
+        ],
         "summary": "대댓글삭제",
         "description": "여기는 대댓글을 작성하는 곳 입니다.",
         "parameters": [
@@ -917,7 +899,9 @@
     },
     "/api/recomment/{recomment_Id}/likes": {
       "post": {
-        "tags": ["Recomment"],
+        "tags": [
+          "Recomment"
+        ],
         "summary": "대댓글좋아요",
         "description": "여기는 대댓글좋아요 하는 곳 입니다.",
         "parameters": [
@@ -950,7 +934,9 @@
     },
     "/api/recomment/{recomment_Id}/unlikes": {
       "delete": {
-        "tags": ["Recomment"],
+        "tags": [
+          "Recomment"
+        ],
         "summary": "대댓글좋아요 취소",
         "description": "여기는 대댓글좋아요 취소 하는 곳 입니다.",
         "parameters": [

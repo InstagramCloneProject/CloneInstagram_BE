@@ -106,6 +106,7 @@ async function showMyPage(req, res) {
   // #swagger.tags = ["User"]
   // #swagger.summary = "개인 프로필 페이지 조회"
 
+  const { id } = res.locals
   const { user_Id } = req.params //유저 받기
   const follow = await userBasic.findOne({ where: { id: user_Id } }) // 유저정보 찾기
   const follower = await userFollow.findAll({ where: { followId: follow.userId } }) //나를 팔로우 한 수
@@ -122,6 +123,16 @@ async function showMyPage(req, res) {
       attributes: ["profileImg"],
     },
   })
+
+  // 유저의 팔로우 여부 확인 ( 0 == 언팔, 1 == 팔로우)
+  const followJudge = await userFollow.findAll({ where: { user_Id: id, followId: follow.userId } })
+  let followTrue
+  if (!followJudge) {
+    followTrue = false
+  } else {
+    followTrue = true
+  }
+
 
   const feeds = await feed.findAll({
     where: { user_Id },
@@ -142,6 +153,7 @@ async function showMyPage(req, res) {
   })
   res.json({
     user,
+    followTrue,
     feedCount: {
       count: feeds.length,
     },
@@ -194,8 +206,8 @@ async function updateProfileImg(req, res) {
     const findImg = userProfile.profileImg.split("/profileImg/")[1]
     s3.deleteObject({ Bucket: "cloneproject-instagram", Key: `profileImg/${findImg}` }, (err) => console.log(err))
   }
-console.log(req)  
-console.log(req.file)
+  console.log(req)
+  console.log(req.file)
   const updateProfileImg = req.file.location //수정 할 이미지
   await userInfo.update({ profileImg: updateProfileImg }, { where: { user_Id } })
   res.status(200).json({ success: true })

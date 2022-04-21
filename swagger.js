@@ -6,7 +6,7 @@ const doc = {
     description: "인스타 클로코딩",
   },
   host: "hyeonjun.shop",
-  schemes: ["http"],
+  schemes: ["https"],
   tags: [
     {
       name: 'User',
