@@ -126,8 +126,9 @@ async function showMyPage(req, res) {
 
   // 유저의 팔로우 여부 확인 ( 0 == 언팔, 1 == 팔로우)
   const followJudge = await userFollow.findAll({ where: { user_Id: id, followId: follow.userId } })
+
   let followTrue
-  if (!followJudge) {
+  if (followJudge.length === 0) {
     followTrue = false
   } else {
     followTrue = true
