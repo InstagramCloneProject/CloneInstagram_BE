@@ -46,7 +46,7 @@ https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
 : AWS EC2
 
 4) **Auth**
-: JWT(ACCESS/REFRESH)
+: JWT(access/refresh)
 
 5) **이미지 서버**
 : S3
