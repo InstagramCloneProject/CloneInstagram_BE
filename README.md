@@ -25,9 +25,6 @@
 2022년 04월 15일 ~2022년 04월 21일
 
 ---
-### :tv: Youtube
-
----
 
 ### :balloon: Notion Link
 https://www.notion.so/99-6-1-485bf045e8204ac1aced130dab0c7cbd
